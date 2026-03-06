@@ -5,31 +5,40 @@
     ViewData["MetaDescription"] = $"Danh sách KOL/KOC phù hợp với tìm kiếm: {queryStr ?? "Tất cả"}. Tìm kiếm Influencer theo loại và địa điểm tại Việt Nam.";
 }
 
-<h2 class="mb-4">Kết quả tìm kiếm KOL</h2>
+<div class="mb-5 mb-md-3">
+    <h2 class="fw-bold mb-1">Cộng đồng Influencers</h2>
+    <p class="text-muted">Khám phá và kết nối với những gương mặt phù hợp nhất</p>
+</div>
 
-<div class="card mb-4 shadow-sm">
-    <div class="card-body bg-light">
+<div class="card border-0 shadow-sm mb-5 overflow-visible">
+    <div class="card-body p-4">
         <form asp-action="Search" method="get" class="row g-3">
             <div class="col-md-4">
-                <label class="form-label">Từ khóa</label>
-                <input type="text" name="query" value="@ViewBag.Query" class="form-control" placeholder="Tên KOL, Bio...">
+                <label class="form-label fw-semibold small text-muted">Từ khóa</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" name="query" value="@ViewBag.Query" class="form-control bg-light border-start-0" placeholder="Tên KOL, kỹ năng...">
+                </div>
             </div>
             <div class="col-md-3">
-                <label class="form-label">Loại KOL</label>
-                <select name="type" class="form-select">
+                <label class="form-label fw-semibold small text-muted">Hạng Influencer</label>
+                <select name="type" class="form-select bg-light">
                     <option value="">-- Tất cả --</option>
-                    <option value="Nano" selected="@(ViewBag.Type == "Nano")">Nano</option>
-                    <option value="Micro" selected="@(ViewBag.Type == "Micro")">Micro</option>
-                    <option value="Macro" selected="@(ViewBag.Type == "Macro")">Macro</option>
-                    <option value="Mega" selected="@(ViewBag.Type == "Mega")">Mega</option>
+                    <option value="Nano" selected="@(ViewBag.Type == "Nano")">Nano (1k - 10k)</option>
+                    <option value="Micro" selected="@(ViewBag.Type == "Micro")">Micro (10k - 50k)</option>
+                    <option value="Macro" selected="@(ViewBag.Type == "Macro")">Macro (50k - 500k)</option>
+                    <option value="Mega" selected="@(ViewBag.Type == "Mega")">Mega (>500k)</option>
                 </select>
             </div>
             <div class="col-md-3">
-                <label class="form-label">Thành phố</label>
-                <input type="text" name="city" value="@ViewBag.City" class="form-control" placeholder="Hà Nội, TP.HCM...">
+                <label class="form-label fw-semibold small text-muted">Địa điểm</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-geo-alt"></i></span>
+                    <input type="text" name="city" value="@ViewBag.City" class="form-control bg-light border-start-0" placeholder="Hà Nội, TP.HCM...">
+                </div>
             </div>
             <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary w-100">Lọc kết quả</button>
+                <button type="submit" class="btn btn-primary w-100 py-2">Lọc ngay</button>
             </div>
         </form>
     </div>
@@ -39,8 +48,12 @@
     @if (!Model.Any())
     {
         <div class="col-12 text-center py-5">
-            <h5 class="text-muted">Không tìm thấy KOL nào phù hợp với yêu cầu của bạn.</h5>
-            <a asp-action="Index" class="btn btn-outline-secondary mt-3">Quay lại trang chủ</a>
+            <div class="mb-3">
+                <i class="bi bi-search fs-1 text-muted opacity-25"></i>
+            </div>
+            <h5 class="text-muted fw-bold">Rất tiếc, chưa thấy kết quả nảo phù hợp.</h5>
+            <p class="text-muted small">Hãy thử thay đổi từ khóa hoặc bộ lọc của bạn.</p>
+            <a asp-action="Index" class="btn btn-outline-primary btn-sm rounded-pill mt-2">Quay lại trang chủ</a>
         </div>
     }
     else
@@ -48,18 +61,35 @@
         @foreach (var kol in Model)
         {
             <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">@kol.FullName</h5>
-                        <h6 class="card-subtitle mb-2 text-primary">@kol.InfluencerType Influencer</h6>
-                        <p class="card-text text-muted mb-2"><small>@kol.LocationCity</small></p>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="badge bg-warning text-dark">⭐ @kol.RatingAvg (@kol.RatingCount)</span>
-                        </div>
-                        <p class="card-text">Ngân sách từ: @(kol.MinBudget?.ToString("C0") ?? "Thỏa thuận")</p>
+                <div class="card h-100">
+                    <div class="position-relative">
+                        <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(kol.FullName)&size=400&background=random" class="card-img-top" alt="@kol.FullName" style="height: 180px; object-fit: cover;">
+                        @if (kol.IsVerified)
+                        {
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge bg-white text-primary shadow-sm rounded-circle p-1"><i class="bi bi-patch-check-fill fs-5"></i></span>
+                            </div>
+                        }
                     </div>
-                    <div class="card-footer bg-transparent">
-                        <a asp-action="KolDetail" asp-route-id="@kol.UserId" class="btn btn-outline-primary w-100">Xem Hồ Sơ</a>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title fw-bold">@kol.FullName</h5>
+                            <span class="badge badge-premium bg-light text-primary border">@kol.InfluencerType</span>
+                        </div>
+                        <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>@kol.LocationCity</p>
+                        
+                        <div class="d-flex align-items-center mb-4">
+                            <span class="text-warning fw-bold me-1">⭐ @kol.RatingAvg</span>
+                            <span class="text-muted very-small">(@kol.RatingCount)</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                            <div>
+                                <span class="text-muted footer-label d-block fw-semibold" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px;">Ngân sách</span>
+                                <span class="fw-bold text-primary">@(kol.MinBudget?.ToString("N0") ?? "--") <small class="text-muted fw-normal">VND</small></span>
+                            </div>
+                            <a asp-action="KolDetail" asp-route-id="@kol.UserId" class="btn btn-sm btn-outline-primary px-3 rounded-pill">Chi tiết</a>
+                        </div>
                     </div>
                 </div>
             </div>

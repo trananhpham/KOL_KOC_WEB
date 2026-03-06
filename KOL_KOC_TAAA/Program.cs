@@ -1,9 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using KOL_KOC_TAAA.Data;
+using KOL_KOC_TAAA.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient<IGroqService, GroqService>();
 
 builder.Services.AddAuthentication("KolCookies")
     .AddCookie("KolCookies", options =>

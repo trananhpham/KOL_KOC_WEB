@@ -101,13 +101,20 @@ public class AuthController : Controller
             return View(model);
         }
 
-        // Assign default Role based on selection (Customer or KOL)
-        string defaultRoleName = model.Role == "KOL" ? "KOL" : "Customer";
-        var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == defaultRoleName);
+        // Assign default Role code (must match DB unique constraint UQ__Roles__A25C5AA7A32F6946)
+        string defaultCode = model.Role == "KOL" ? "KOL" : "CUSTOMER";
+        
+        // Find existing role by Code (case-insensitive)
+        var role = await _context.Roles
+            .FirstOrDefaultAsync(r => r.Code == defaultCode);
+
         if (role == null)
         {
-            // Seed the role if it doesn't exist just in case
-            role = new Role { Name = defaultRoleName, Code = defaultRoleName.ToUpper() };
+            // Seed the role ONLY if it truly doesn't exist to prevent race conditions
+            role = new Role { 
+                Code = defaultCode, 
+                Name = (defaultCode == "KOL" ? "KOL" : "Khách hàng") 
+            };
             _context.Roles.Add(role);
         }
 
@@ -123,7 +130,7 @@ public class AuthController : Controller
         _context.Users.Add(newUser);
         
         // Also create KolProfile if role is KOL
-        if (defaultRoleName == "KOL")
+        if (defaultCode == "KOL")
         {
             _context.KolProfiles.Add(new KolProfile { UserId = newUser.Id, InfluencerType = "Nano", Bio = "" });
         }
