@@ -104,24 +104,26 @@ public class AuthController : Controller
         // Assign default Role code (must match DB unique constraint UQ__Roles__A25C5AA7A32F6946)
         string defaultCode = model.Role == "KOL" ? "KOL" : "CUSTOMER";
         
-        // Find existing role by Code (case-insensitive)
+        // Find existing role by Code (case-insensitive) - ToUpper() is safer for some providers
         var role = await _context.Roles
-            .FirstOrDefaultAsync(r => r.Code == defaultCode);
+            .FirstOrDefaultAsync(r => r.Code.ToUpper() == defaultCode.ToUpper());
 
         if (role == null)
         {
-            // Seed the role ONLY if it truly doesn't exist to prevent race conditions
+            // Seed the role ONLY if it truly doesn't exist
             role = new Role { 
                 Code = defaultCode, 
                 Name = (defaultCode == "KOL" ? "KOL" : "Khách hàng") 
             };
             _context.Roles.Add(role);
+            await _context.SaveChangesAsync(); // Commit role first to be absolutely sure
         }
 
         var newUser = new User
         {
             Id = Guid.NewGuid(),
             Email = model.Email,
+            FullName = model.Email.Split('@')[0], // Set default FullName as prefix of email
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
             Status = "active",
             Roles = new List<Role> { role }

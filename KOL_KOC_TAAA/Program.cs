@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using KOL_KOC_TAAA.Data;
 using KOL_KOC_TAAA.Services;
 
