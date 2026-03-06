@@ -1,0 +1,66 @@
+@model IEnumerable<KOL_KOC_TAAA.ViewModels.PublicKolProfileViewModel>
+@{
+    ViewData["Title"] = "Kết quả tìm kiếm";
+}
+
+<h2 class="mb-4">Kết quả tìm kiếm KOL</h2>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body bg-light">
+        <form asp-action="Search" method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Từ khóa</label>
+                <input type="text" name="query" value="@ViewBag.Query" class="form-control" placeholder="Tên KOL, Bio...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Loại KOL</label>
+                <select name="type" class="form-select">
+                    <option value="">-- Tất cả --</option>
+                    <option value="Nano" selected="@(ViewBag.Type == "Nano")">Nano</option>
+                    <option value="Micro" selected="@(ViewBag.Type == "Micro")">Micro</option>
+                    <option value="Macro" selected="@(ViewBag.Type == "Macro")">Macro</option>
+                    <option value="Mega" selected="@(ViewBag.Type == "Mega")">Mega</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Thành phố</label>
+                <input type="text" name="city" value="@ViewBag.City" class="form-control" placeholder="Hà Nội, TP.HCM...">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Lọc kết quả</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5">
+            <h5 class="text-muted">Không tìm thấy KOL nào phù hợp với yêu cầu của bạn.</h5>
+            <a asp-action="Index" class="btn btn-outline-secondary mt-3">Quay lại trang chủ</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var kol in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@kol.FullName</h5>
+                        <h6 class="card-subtitle mb-2 text-primary">@kol.InfluencerType Influencer</h6>
+                        <p class="card-text text-muted mb-2"><small>@kol.LocationCity</small></p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge bg-warning text-dark">⭐ @kol.RatingAvg (@kol.RatingCount)</span>
+                        </div>
+                        <p class="card-text">Ngân sách từ: @(kol.MinBudget?.ToString("C0") ?? "Thỏa thuận")</p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a asp-action="KolDetail" asp-route-id="@kol.UserId" class="btn btn-outline-primary w-100">Xem Hồ Sơ</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

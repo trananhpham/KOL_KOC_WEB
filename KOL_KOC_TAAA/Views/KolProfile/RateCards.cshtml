@@ -1,0 +1,89 @@
+@model IEnumerable<KOL_KOC_TAAA.Models.RateCard>
+@{
+    ViewData["Title"] = "Bảng giá dịch vụ";
+    var emptyModel = new KOL_KOC_TAAA.ViewModels.RateCardViewModel();
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar Menu -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a asp-action="Index" class="list-group-item list-group-item-action">Tổng quan</a>
+                <a asp-action="Edit" class="list-group-item list-group-item-action">Chỉnh sửa hồ sơ</a>
+                <a asp-action="Socials" class="list-group-item list-group-item-action">Mạng xã hội</a>
+                <a asp-action="RateCards" class="list-group-item list-group-item-action active">Bảng giá (Rate Cards)</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Tạo bảng giá dịch vụ mới</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateRateCard" method="post" class="row align-items-end">
+                        <div class="col-md-6">
+                            <label asp-for="@emptyModel.Title" class="form-label">Tên bảng giá</label>
+                            <input name="Title" class="form-control" type="text" placeholder="Gói Video Review TikTok cơ bản..." required />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="@emptyModel.Currency" class="form-label">Đơn vị tiền</label>
+                            <input name="Currency" class="form-control" type="text" value="VND" readonly />
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-success w-100">Tạo mới</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row">
+                @if (!Model.Any())
+                {
+                    <div class="col-12 text-center text-muted">
+                        <p>Bạn chưa cài đặt gói dịch vụ nào. Hãy tạo một gói mới phía trên!</p>
+                    </div>
+                }
+                
+                @foreach (var rc in Model)
+                {
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 border-@(rc.IsActive ? "primary" : "secondary")">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">@rc.Title</h6>
+                                <span class="badge bg-@(rc.IsActive ? "success" : "secondary")">@(rc.IsActive ? "Đang bật" : "Đã tắt")</span>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush mb-3">
+                                    @foreach (var item in rc.RateCardItems)
+                                    {
+                                        <li class="list-group-item px-0">
+                                            <div class="d-flex justify-content-between">
+                                                <span><strong>@item.ServiceType</strong></span>
+                                                <span class="text-primary font-weight-bold">@item.UnitPrice.ToString("N0") @rc.Currency</span>
+                                            </div>
+                                            <small class="text-muted">@(item.DurationMinutes != null ? $"Thời lượng: {item.DurationMinutes} phút" : "") - @item.Description</small>
+                                        </li>
+                                    }
+                                </ul>
+                                
+                                <button class="btn btn-sm btn-outline-primary w-100">Cập nhật (Đang xây dựng...)</button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>

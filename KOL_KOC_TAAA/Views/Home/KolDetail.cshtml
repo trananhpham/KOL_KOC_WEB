@@ -1,0 +1,109 @@
+@model KOL_KOC_TAAA.ViewModels.PublicKolProfileViewModel
+@{
+    ViewData["Title"] = $"Hồ sơ KOL: {Model.FullName}";
+}
+
+<div class="row">
+    <!-- Left column: Profile info -->
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.FullName)&size=150&background=random" class="rounded-circle img-thumbnail" alt="Avatar">
+                </div>
+                <h4 class="card-title">@Model.FullName</h4>
+                <p class="text-muted mb-2">
+                    <span class="badge bg-primary">@Model.InfluencerType Influencer</span>
+                </p>
+                <div class="d-flex justify-content-center align-items-center mb-3">
+                    <span class="badge bg-warning text-dark me-2">⭐ @Model.RatingAvg (@Model.RatingCount)</span>
+                    @if (Model.IsVerified)
+                    {
+                        <span class="badge bg-success">✓ Đã xác thực</span>
+                    }
+                </div>
+                <p class="text-muted"><i class="bi bi-geo-alt"></i> @Model.LocationCity, @Model.LocationCountry</p>
+                <hr>
+                <p class="text-start"><strong>Giới thiệu:</strong><br/> @(string.IsNullOrWhiteSpace(Model.Bio) ? "Chưa có lời giới thiệu." : Model.Bio)</p>
+            </div>
+            <div class="card-footer bg-white">
+                <h6 class="mb-3">Liên kết mạng xã hội:</h6>
+                @if (!Model.SocialAccounts.Any())
+                {
+                    <p class="text-muted"><small>Chưa cập nhật.</small></p>
+                }
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var social in Model.SocialAccounts)
+                    {
+                        <a href="@social.ProfileUrl" target="_blank" class="btn btn-outline-secondary btn-sm">
+                            @social.Platform <span class="badge bg-light text-dark">@(social.Followers?.ToString("N0") ?? "0")</span>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right column: Rate Cards & Portfolio -->
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Bảng giá dịch vụ (Rate Cards)</h5>
+            </div>
+            <div class="card-body">
+                @if (!Model.RateCards.Any())
+                {
+                    <p class="text-muted">KOL này chưa công khai bảng giá. Vui lòng liên hệ trực tiếp.</p>
+                }
+                else
+                {
+                    <div class="accordion" id="rateCardAccordion">
+                        @for (int i = 0; i < Model.RateCards.Count; i++)
+                        {
+                            var rc = Model.RateCards[i];
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="heading@(i)">
+                                    <button class="accordion-button @(i == 0 ? "" : "collapsed")" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@(i)" aria-expanded="@(i == 0 ? "true" : "false")" aria-controls="collapse@(i)">
+                                        <strong>@rc.Title</strong>
+                                    </button>
+                                </h2>
+                                <div id="collapse@(i)" class="accordion-collapse collapse @(i == 0 ? "show" : "")" aria-labelledby="heading@(i)" data-bs-parent="#rateCardAccordion">
+                                    <div class="accordion-body p-0">
+                                        <ul class="list-group list-group-flush">
+                                            @foreach (var item in rc.RateCardItems)
+                                            {
+                                                <li class="list-group-item">
+                                                    <div class="d-flex justify-content-between">
+                                                        <span>@item.ServiceType</span>
+                                                        <span class="text-primary fw-bold">@item.UnitPrice.ToString("N0") @rc.Currency</span>
+                                                    </div>
+                                                    <p class="mb-0 text-muted small">@item.Description (@(item.DurationMinutes != null ? $"Thời lượng: {item.DurationMinutes} phút" : ""))</p>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                    <div class="card-footer text-end bg-light">
+                                        <!-- Phase 3 Booking integration point -->
+                                        <button class="btn btn-primary btn-sm disabled" title="Tính năng Booking sẽ ra mắt ở Phase 3">Đặt ngay (Coming soon)</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Portfolio / Sản phẩm đã thực hiện</h5>
+            </div>
+            <div class="card-body">
+                @if (!Model.Portfolios.Any())
+                {
+                    <p class="text-muted">Chưa có sản phẩm nào trong Portfolio.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

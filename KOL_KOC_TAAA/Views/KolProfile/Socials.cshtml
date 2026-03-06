@@ -1,0 +1,109 @@
+@model IEnumerable<KOL_KOC_TAAA.ViewModels.KolSocialAccountViewModel>
+@{
+    ViewData["Title"] = "Mạng xã hội";
+    var emptyModel = new KOL_KOC_TAAA.ViewModels.KolSocialAccountViewModel();
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar Menu -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a asp-action="Index" class="list-group-item list-group-item-action">Tổng quan</a>
+                <a asp-action="Edit" class="list-group-item list-group-item-action">Chỉnh sửa hồ sơ</a>
+                <a asp-action="Socials" class="list-group-item list-group-item-action active">Mạng xã hội</a>
+                <a asp-action="RateCards" class="list-group-item list-group-item-action">Bảng giá (Rate Cards)</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Thêm liên kết mạng xã hội</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AddSocial" method="post" class="row align-items-end">
+                        <div class="col-md-3">
+                            <label asp-for="@emptyModel.Platform" class="form-label">Nền tảng</label>
+                            <select name="Platform" class="form-select" required>
+                                <option value="TikTok">TikTok</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="YouTube">YouTube</option>
+                                <option value="X">X (Twitter)</option>
+                                <option value="Other">Khác</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="@emptyModel.Url" class="form-label">URL Profile</label>
+                            <input name="Url" class="form-control" type="url" placeholder="https://tiktok.com/@@..." required />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="@emptyModel.FollowersCount" class="form-label">Followers</label>
+                            <input name="FollowersCount" class="form-control" type="number" placeholder="1000" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-success w-100">Thêm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Danh sách mạng xã hội hiện tại</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nền tảng</th>
+                                <th>Đường dẫn</th>
+                                <th>Followers</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Chưa có dữ liệu</td>
+                                </tr>
+                            }
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td><strong>@item.Platform</strong></td>
+                                    <td><a href="@item.Url" target="_blank" class="text-truncate d-inline-block" style="max-width:300px;">@item.Url</a></td>
+                                    <td>@(item.FollowersCount?.ToString("N0") ?? "-")</td>
+                                    <td>
+                                        <form asp-action="RemoveSocial" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa liên kết này không?');">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

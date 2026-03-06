@@ -1,0 +1,97 @@
+@model KOL_KOC_TAAA.Models.KolProfile
+@{
+    ViewData["Title"] = "Bảng điều khiển KOL";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar Menu -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a asp-action="Index" class="list-group-item list-group-item-action active">Tổng quan</a>
+                <a asp-action="Edit" class="list-group-item list-group-item-action">Chỉnh sửa hồ sơ</a>
+                <a asp-action="Socials" class="list-group-item list-group-item-action">Mạng xã hội</a>
+                <a asp-action="RateCards" class="list-group-item list-group-item-action">Bảng giá (Rate Cards)</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Hồ sơ của bạn</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Loại KOL:</strong> @Model.InfluencerType</p>
+                            <p><strong>Giới thiệu:</strong> @(Model.Bio ?? "Chưa có thông tin")</p>
+                            <p><strong>Ngân sách tối thiểu:</strong> @(Model.MinBudget?.ToString("C0") ?? "Liên hệ")</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Đánh giá:</strong> @Model.RatingAvg (@Model.RatingCount lượt)</p>
+                            <p><strong>Khu vực:</strong> @Model.LocationCity, @Model.LocationCountry</p>
+                            <p><strong>Trạng thái:</strong> @(Model.IsVerified ? "Đã xác thực" : "Chưa xác thực")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Social Accounts Summary -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Mạng xã hội</h5>
+                            <a asp-action="Socials" class="btn btn-sm btn-outline-secondary">Quản lý</a>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (!Model.KolSocialAccounts.Any())
+                            {
+                                <li class="list-group-item text-muted">Chưa có liên kết MXH nào.</li>
+                            }
+                            @foreach (var social in Model.KolSocialAccounts)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@social.ProfileUrl" target="_blank">@social.Platform</a>
+                                    <span class="badge bg-info rounded-pill">@(social.Followers?.ToString("N0") ?? "0") subs</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Rate Cards Summary -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Bảng giá dịch vụ</h5>
+                            <a asp-action="RateCards" class="btn btn-sm btn-outline-secondary">Quản lý</a>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (!Model.RateCards.Any())
+                            {
+                                <li class="list-group-item text-muted">Bạn chưa cài đặt bảng giá.</li>
+                            }
+                            @foreach (var card in Model.RateCards)
+                            {
+                                <li class="list-group-item">
+                                    <strong>@card.Title</strong> - @(card.IsActive ? "Đang bật" : "Đã tắt")
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
