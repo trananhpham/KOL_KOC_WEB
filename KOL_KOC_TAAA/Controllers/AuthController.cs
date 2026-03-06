@@ -58,7 +58,7 @@ public class AuthController : Controller
 
         foreach (var role in user.Roles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role.Name));
+            claims.Add(new Claim(ClaimTypes.Role, role.Code));
         }
 
         var identity = new ClaimsIdentity(claims, "KolCookies");
@@ -154,5 +154,51 @@ public class AuthController : Controller
         await HttpContext.SignOutAsync("KolCookies");
         HttpContext.Session.Clear();
         return RedirectToAction("Index", "Home");
+    }
+
+    [HttpGet]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SeedAdmin()
+    {
+        var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Code == "Admin");
+        if (adminRole == null)
+        {
+            adminRole = new Role { Code = "Admin", Name = "Quản trị viên" };
+            _context.Roles.Add(adminRole);
+            await _context.SaveChangesAsync();
+        }
+
+        var adminUser = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Email == "admin@kol.com");
+        if (adminUser == null)
+        {
+            adminUser = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = "admin@kol.com",
+                FullName = "Hệ thống Admin",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                Status = "active",
+                Roles = new List<Role> { adminRole }
+            };
+            _context.Users.Add(adminUser);
+            await _context.SaveChangesAsync();
+        }
+        else 
+        {
+            if (!adminUser.Roles.Any(r => r.Code == "Admin"))
+            {
+                adminUser.Roles.Add(adminRole);
+            }
+            // Reset lại mật khẩu phòng trường hợp tài khoản đã tạo từ trước với mật khẩu khác
+            adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123");
+            await _context.SaveChangesAsync();
+        }
+
+        return Content("Đã thiết lập tài khoản Admin thành công! Username: admin@kol.com | Password: admin123");
     }
 }
