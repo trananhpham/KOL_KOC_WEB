@@ -77,6 +77,8 @@ public partial class KolMarketplaceContext : DbContext
     public virtual DbSet<Refund> Refunds { get; set; }
 
     public virtual DbSet<Report> Reports { get; set; }
+    
+    public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
 

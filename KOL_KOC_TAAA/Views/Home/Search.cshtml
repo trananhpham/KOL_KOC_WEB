@@ -1,6 +1,8 @@
 @model IEnumerable<KOL_KOC_TAAA.ViewModels.PublicKolProfileViewModel>
 @{
-    ViewData["Title"] = "Kết quả tìm kiếm";
+    var queryStr = ViewBag.Query as string;
+    ViewData["Title"] = string.IsNullOrEmpty(queryStr) ? "Tìm kiếm KOL/KOC" : $"Kết quả tìm kiếm cho '{queryStr}'";
+    ViewData["MetaDescription"] = $"Danh sách KOL/KOC phù hợp với tìm kiếm: {queryStr ?? "Tất cả"}. Tìm kiếm Influencer theo loại và địa điểm tại Việt Nam.";
 }
 
 <h2 class="mb-4">Kết quả tìm kiếm KOL</h2>

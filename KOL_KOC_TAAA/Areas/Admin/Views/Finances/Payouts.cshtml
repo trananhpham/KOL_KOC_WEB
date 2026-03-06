@@ -1,0 +1,92 @@
+@model IEnumerable<KOL_KOC_TAAA.Models.PayoutRequest>
+@{
+    ViewData["Title"] = "Quản lý Rút tiền";
+}
+
+<div class="mb-4">
+    <h3 class="fw-bold">Yêu cầu rút tiền</h3>
+    <p class="text-muted">Danh sách các yêu cầu rút tiền từ ví KOL.</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card admin-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Người dùng</th>
+                        <th>Số tiền</th>
+                        <th>Thông tin ngân hàng</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@p.User.FullName</div>
+                                <div class="small text-muted">@p.User.Email</div>
+                            </td>
+                            <td class="fw-bold text-primary">@p.Amount.ToString("N0") @p.Currency</td>
+                            <td style="max-width: 200px;" class="small">@p.BankInfoJson</td>
+                            <td class="small">@p.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <span class="badge rounded-pill @(p.Status switch {
+                                    "Pending" => "bg-warning text-dark",
+                                    "Approved" => "bg-success",
+                                    "Rejected" => "bg-danger",
+                                    _ => "bg-secondary"
+                                })">@p.Status</span>
+                            </td>
+                            <td class="text-end">
+                                @if (p.Status == "Pending")
+                                {
+                                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modal-@p.Id">Xử lý</button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="modal-@p.Id" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog text-start">
+                                            <div class="modal-content">
+                                                <form asp-action="ProcessPayout" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="payoutId" value="@p.Id" />
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Xử lý yêu cầu: @p.Amount.ToString("N0") VND</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>KOL: <strong>@p.User.FullName</strong></p>
+                                                        <p>Bank: <code>@p.BankInfoJson</code></p>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Ghi chú (nếu có)</label>
+                                                            <textarea name="adminNote" class="form-control" rows="2"></textarea>
+                                                        </div>
+                                                        <div class="d-flex gap-2">
+                                                            <button type="submit" name="approve" value="true" class="btn btn-success flex-grow-1">Duyệt và Chuyển tiền</button>
+                                                            <button type="submit" name="approve" value="false" class="btn btn-danger flex-grow-1">Từ chối</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

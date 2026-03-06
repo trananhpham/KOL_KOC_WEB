@@ -66,6 +66,10 @@
                                 <small class="text-muted">@item.ProposedStartDate?.ToString("dd/MM/yyyy")</small>
                             </td>
                             <td>
+                                @if (item.Booking != null)
+                                {
+                                    <a asp-action="Details" asp-route-id="@item.Booking.Id" class="btn btn-sm btn-success">Bản hợp đồng</a>
+                                }
                                 <a asp-controller="Chat" asp-action="StartWithBooking" asp-route-bookingId="@item.Id" class="btn btn-sm btn-outline-primary">Chat</a>
                                 <button class="btn btn-sm btn-outline-info">Chi tiết</button>
                             </td>

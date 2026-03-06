@@ -77,6 +77,10 @@
                                     </form>
                                     <a asp-controller="Chat" asp-action="StartWithBooking" asp-route-bookingId="@item.Id" class="btn btn-sm btn-outline-primary">Chat</a>
                                 }
+                                @if (item.Booking != null)
+                                {
+                                    <a asp-action="Details" asp-route-id="@item.Booking.Id" class="btn btn-sm btn-success">Xem đơn hàng</a>
+                                }
                                 <button class="btn btn-sm btn-outline-info">Chi tiết</button>
                             </td>
                         </tr>

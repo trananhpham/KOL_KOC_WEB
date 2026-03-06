@@ -1,0 +1,68 @@
+@model IEnumerable<KOL_KOC_TAAA.Models.KolProfile>
+@{
+    ViewData["Title"] = "Quản lý KOLs";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0">Quản lý Influencers</h3>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card admin-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>Loại</th>
+                        <th>Thành phố</th>
+                        <th>Rating</th>
+                        <th>Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var k in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-bold">@k.User.FullName</div>
+                                <div class="small text-muted">@k.User.Email</div>
+                            </td>
+                            <td><span class="badge bg-secondary">@k.InfluencerType</span></td>
+                            <td>@k.LocationCity</td>
+                            <td>⭐ @k.RatingAvg (@k.RatingCount)</td>
+                            <td>
+                                @if (k.IsVerified)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-patch-check-fill"></i> Đã xác thực</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-dark">Chưa xác thực</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <form asp-action="ToggleVerify" method="post" class="d-inline">
+                                    <input type="hidden" name="userId" value="@k.UserId" />
+                                    <button type="submit" class="btn btn-sm @(k.IsVerified ? "btn-outline-danger" : "btn-primary")">
+                                        @(k.IsVerified ? "Hủy xác thực" : "Xác thực ngay")
+                                    </button>
+                                </form>
+                                <a asp-area="" asp-controller="Home" asp-action="KolDetail" asp-route-id="@k.UserId" target="_blank" class="btn btn-sm btn-outline-secondary">Xem Profile</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

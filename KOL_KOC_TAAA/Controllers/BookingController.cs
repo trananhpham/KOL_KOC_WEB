@@ -94,6 +94,19 @@ public class BookingController : Controller
         // Note: The schema has BookingRequests and Bookings separately. 
         // For simple flow, we'll create a BookingRequest first.
         _context.BookingRequests.Add(booking);
+
+        // Add the selected item to BookingRequestItems
+        var requestItem = new BookingRequestItem
+        {
+            Id = Guid.NewGuid(),
+            BookingRequestId = booking.Id,
+            ServiceType = serviceItem.ServiceType,
+            Platform = serviceItem.Platform,
+            Quantity = 1,
+            ExpectedUnitPrice = serviceItem.UnitPrice
+        };
+        _context.BookingRequestItems.Add(requestItem);
+
         await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Gửi yêu cầu booking thành công! Vui lòng chờ KOL phản hồi.";
@@ -107,6 +120,7 @@ public class BookingController : Controller
         var userId = GetCurrentUserId();
         var requests = await _context.BookingRequests
             .Include(r => r.KolUser).ThenInclude(u => u.User)
+            .Include(r => r.Booking)
             .Where(r => r.CustomerUserId == userId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
@@ -121,11 +135,30 @@ public class BookingController : Controller
         var userId = GetCurrentUserId();
         var requests = await _context.BookingRequests
             .Include(r => r.CustomerUser)
+            .Include(r => r.Booking)
             .Where(r => r.KolUserId == userId)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync();
 
         return View(requests);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var userId = GetCurrentUserId();
+        var booking = await _context.Bookings
+            .Include(b => b.KolUser.User)
+            .Include(b => b.CustomerUser)
+            .Include(b => b.BookingItems)
+            .Include(b => b.Contracts)
+            .Include(b => b.Deliverables)
+            .Include(b => b.BookingRequest)
+            .FirstOrDefaultAsync(b => b.Id == id && (b.CustomerUserId == userId || b.KolUserId == userId));
+
+        if (booking == null) return NotFound();
+
+        return View(booking);
     }
 
     [HttpPost]
@@ -141,8 +174,65 @@ public class BookingController : Controller
         {
             request.Status = status;
             request.UpdatedAt = DateTime.UtcNow;
+
+            if (status == "accepted")
+            {
+                // Create official Booking
+                var requestItems = await _context.BookingRequestItems
+                    .Where(i => i.BookingRequestId == requestId)
+                    .ToListAsync();
+
+                decimal subtotal = requestItems.Sum(i => (i.ExpectedUnitPrice ?? 0) * i.Quantity);
+                decimal platformFee = subtotal * 0.1m; // 10% fee
+                decimal total = subtotal + platformFee;
+
+                var booking = new Booking
+                {
+                    Id = Guid.NewGuid(),
+                    BookingRequestId = requestId,
+                    CustomerUserId = request.CustomerUserId,
+                    KolUserId = request.KolUserId,
+                    AgreedSubtotal = subtotal,
+                    PlatformFee = platformFee,
+                    TaxAmount = 0, // Placeholder
+                    TotalAmount = total,
+                    Currency = request.Currency,
+                    Status = "pending_contract",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                _context.Bookings.Add(booking);
+
+                // Add BookingItems
+                foreach (var ri in requestItems)
+                {
+                    _context.BookingItems.Add(new BookingItem
+                    {
+                        Id = Guid.NewGuid(),
+                        BookingId = booking.Id,
+                        ServiceType = ri.ServiceType,
+                        Platform = ri.Platform,
+                        Quantity = ri.Quantity,
+                        UnitPrice = ri.ExpectedUnitPrice ?? 0,
+                        LineTotal = (ri.ExpectedUnitPrice ?? 0) * ri.Quantity
+                    });
+                }
+            }
+
+            // 3. Notify Customer
+            _context.Notifications.Add(new Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = request.CustomerUserId,
+                Type = "BookingAccepted",
+                Title = "Yêu cầu đã được chấp nhận",
+                Body = $"KOL đã chấp nhận yêu cầu của bạn. Vui lòng thanh toán để bắt đầu.",
+                CreatedAt = DateTime.UtcNow
+            });
+
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = status == "accepted" ? "Đã chấp nhận yêu cầu." : "Đã từ chối yêu cầu.";
+            TempData["SuccessMessage"] = status == "accepted" ? "Đã chấp nhận yêu cầu và khởi tạo đơn hàng." : "Đã từ chối yêu cầu.";
         }
 
         return RedirectToAction(nameof(ManageBookings));

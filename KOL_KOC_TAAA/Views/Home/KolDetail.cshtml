@@ -1,6 +1,7 @@
 @model KOL_KOC_TAAA.ViewModels.PublicKolProfileViewModel
 @{
-    ViewData["Title"] = $"Hồ sơ KOL: {Model.FullName}";
+    ViewData["Title"] = $"Hồ sơ KOL {Model.FullName} - {Model.InfluencerType} Influencer tại {Model.LocationCity}";
+    ViewData["MetaDescription"] = $"Xem hồ sơ chi tiết của KOL {Model.FullName}. Chuyên gia {Model.InfluencerType} tại {Model.LocationCity}. Xem bảng giá dịch vụ và các sản phẩm đã thực hiện.";
 }
 
 <div class="row">
@@ -11,7 +12,7 @@
                 <div class="mb-3">
                     <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.FullName)&size=150&background=random" class="rounded-circle img-thumbnail" alt="Avatar">
                 </div>
-                <h4 class="card-title">@Model.FullName</h4>
+                <h1 class="h4 card-title">@Model.FullName</h1>
                 <p class="text-muted mb-2">
                     <span class="badge bg-primary">@Model.InfluencerType Influencer</span>
                 </p>

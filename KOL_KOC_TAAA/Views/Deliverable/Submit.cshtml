@@ -1,0 +1,61 @@
+@model KOL_KOC_TAAA.ViewModels.SubmitDeliverableViewModel
+@{
+    ViewData["Title"] = "Nộp sản phẩm bàn giao";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Báo cáo hoàn thành công việc</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Submit" method="post">
+                        <input type="hidden" asp-for="BookingId" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="DeliverableType" class="form-label fw-bold"></label>
+                            <select asp-for="DeliverableType" class="form-select">
+                                <option value="Video">Video (Tiktok, Youtube, Reels)</option>
+                                <option value="Post">Bài viết (Facebook, Instagram, Blog)</option>
+                                <option value="Story">Story / Quảng bá ngắn</option>
+                                <option value="Image">Hình ảnh / Portfolio item</option>
+                                <option value="Other">Khác</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold"></label>
+                            <input asp-for="Title" class="form-control" placeholder="Ví dụ: Link bài đăng Tiktok review sản phẩm X" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="WorkUrl" class="form-label fw-bold"></label>
+                            <input asp-for="WorkUrl" class="form-control" placeholder="https://..." />
+                            <span asp-validation-for="WorkUrl" class="text-danger"></span>
+                            <div class="form-text">Dán đường dẫn sản phẩm thực tế để khách hàng kiểm tra.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Ghi chú thêm cho nhãn hàng..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary me-md-2">Quay lại</a>
+                            <button type="submit" class="btn btn-info px-5 text-white">Xác nhận nộp sản phẩm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

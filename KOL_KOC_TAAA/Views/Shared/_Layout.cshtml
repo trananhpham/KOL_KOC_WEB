@@ -1,11 +1,24 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - KOL_KOC_TAAA</title>
+    <title>@ViewData["Title"] - MarketPlace KOL/KOC</title>
+    @{
+        var metaDesc = ViewData["MetaDescription"] ?? "Nền tảng kết nối Doanh nghiệp với KOL/KOC hàng đầu Việt Nam. Tìm kiếm Influencer phù hợp cho chiến dịch marketing của bạn.";
+        var ogImage = ViewData["OgImage"] ?? "/images/og-default.jpg";
+    }
+    <meta name="description" content="@metaDesc">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="@ViewData["Title"] - MarketPlace KOL/KOC">
+    <meta property="og:description" content="@metaDesc">
+    <meta property="og:image" content="@ogImage">
+    
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/KOL_KOC_TAAA.styles.css" asp-append-version="true" />
 </head>
@@ -45,9 +58,34 @@
                                     <a class="nav-link text-dark" asp-controller="Booking" asp-action="MyRequests">Đơn đã đặt</a>
                                 </li>
                             }
+                            <li class="nav-item dropdown" id="notificationDropdown">
+                                <a class="nav-link text-dark position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-bell"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notiBadge">
+                                        0
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                                    <li class="p-2 border-bottom fw-bold small bg-light">Thông báo mới nhất</li>
+                                    <div id="notiList">
+                                        <li class="p-3 text-center text-muted small">Đang tải...</li>
+                                    </div>
+                                    <li><hr class="dropdown-divider m-0"></li>
+                                    <li class="p-2 text-center small"><a href="#" class="text-decoration-none">Xem tất cả</a></li>
+                                </ul>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Chat" asp-action="Index">Tin nhắn</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Wallet" asp-action="Index">Ví tiền</a>
+                            </li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger fw-bold" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Quản trị</a>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <span class="nav-link text-dark">Xin chào, @Context.Session.GetString("UserName")!</span>
                             </li>
@@ -85,6 +123,33 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function() {
+            function loadNotifications() {
+                $.get('/Notification/GetLatest', function(data) {
+                    if (data && data.length > 0) {
+                        $('#notiBadge').text(data.length).removeClass('d-none');
+                        var html = '';
+                        data.forEach(function(n) {
+                            html += `<li class="p-2 border-bottom">
+                                        <div class="small fw-bold">${n.title}</div>
+                                        <div class="small text-muted">${n.body || ''}</div>
+                                        <div class="text-end" style="font-size: 0.7rem;">${new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                                     </li>`;
+                        });
+                        $('#notiList').html(html);
+                    } else {
+                        $('#notiList').html('<li class="p-3 text-center text-muted small">Không có thông báo mới</li>');
+                        $('#notiBadge').addClass('d-none');
+                    }
+                });
+            }
+            if ($('#notificationDropdown').length) {
+                loadNotifications();
+                setInterval(loadNotifications, 60000); 
+            }
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
