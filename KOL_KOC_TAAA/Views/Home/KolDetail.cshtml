@@ -83,8 +83,7 @@
                                         </ul>
                                     </div>
                                     <div class="card-footer text-end bg-light">
-                                        <!-- Phase 3 Booking integration point -->
-                                        <button class="btn btn-primary btn-sm disabled" title="Tính năng Booking sẽ ra mắt ở Phase 3">Đặt ngay (Coming soon)</button>
+                                        <a asp-controller="Booking" asp-action="Create" asp-route-kolId="@Model.UserId" class="btn btn-primary btn-sm">Đặt gói này ngay</a>
                                     </div>
                                 </div>
                             </div>

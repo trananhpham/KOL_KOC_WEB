@@ -30,6 +30,24 @@
                     <ul class="navbar-nav">
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            @if (User.IsInRole("KOL"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="KolProfile" asp-action="Index">Hồ sơ KOL</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Booking" asp-action="ManageBookings">Quản lý Booking</a>
+                                </li>
+                            }
+                            @if (User.IsInRole("Customer"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Booking" asp-action="MyRequests">Đơn đã đặt</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Chat" asp-action="Index">Tin nhắn</a>
+                            </li>
                             <li class="nav-item">
                                 <span class="nav-link text-dark">Xin chào, @Context.Session.GetString("UserName")!</span>
                             </li>

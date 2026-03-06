@@ -1,0 +1,72 @@
+@model KOL_KOC_TAAA.ViewModels.CreateBookingViewModel
+@{
+    ViewData["Title"] = $"Đặt lịch với {Model.KolName}";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Yêu cầu Booking mới</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Bạn đang gửi yêu cầu hợp tác đến <strong>@Model.KolName</strong>. Vui lòng điền đầy đủ thông tin bên dưới.</p>
+                    <hr>
+
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" asp-for="KolUserId" />
+                        <input type="hidden" asp-for="KolName" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="RateCardItemId" class="form-label font-weight-bold">Chọn gói dịch vụ</label>
+                            <select asp-for="RateCardItemId" class="form-select" required>
+                                <option value="">-- Chọn dịch vụ từ bảng giá --</option>
+                                @foreach (var item in Model.AvailableServices)
+                                {
+                                    <option value="@item.Id">@item.Name - @item.Price.ToString("N0") @item.Currency</option>
+                                }
+                            </select>
+                            <span asp-validation-for="RateCardItemId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CampaignDescription" class="form-label font-weight-bold"></label>
+                            <textarea asp-for="CampaignDescription" class="form-control" rows="4" placeholder="Mô tả ngắn gọn về sản phẩm, mục tiêu chiến dịch và yêu cầu cụ thể đối với KOL..."></textarea>
+                            <span asp-validation-for="CampaignDescription" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartDate" class="form-label font-weight-bold"></label>
+                                <input asp-for="StartDate" class="form-control" type="date" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndDate" class="form-label font-weight-bold"></label>
+                                <input asp-for="EndDate" class="form-control" type="date" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Notes" class="form-label font-weight-bold"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Lưu ý khác (nếu có)..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary me-md-2">Quay lại</a>
+                            <button type="submit" class="btn btn-primary px-5">Gửi yêu cầu</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
