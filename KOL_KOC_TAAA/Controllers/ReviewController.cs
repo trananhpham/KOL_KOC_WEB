@@ -32,7 +32,7 @@ public class ReviewController : Controller
             .FirstOrDefaultAsync(b => b.Id == bookingId && b.CustomerUserId == GetCurrentUserId());
 
         if (booking == null) return NotFound();
-        if (booking.Status != "Completed") return BadRequest("Chỉ có thể đánh giá sau khi hoàn thành đơn hàng.");
+        if (booking.Status != "completed") return BadRequest("Chỉ có thể đánh giá sau khi hoàn thành đơn hàng.");
 
         // Check if already reviewed
         var existing = await _context.Reviews.AnyAsync(r => r.BookingId == bookingId);

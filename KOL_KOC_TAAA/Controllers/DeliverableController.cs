@@ -87,11 +87,14 @@ public class DeliverableController : Controller
         deliverable.ApprovedAt = DateTime.UtcNow;
         deliverable.UpdatedAt = DateTime.UtcNow;
 
-        // Check if all deliverables for this booking are approved
+        // Save the current approval first
+        await _context.SaveChangesAsync();
+
+        // Now check if ALL deliverables for this booking are approved (including the one just saved)
         var allApproved = await _context.Deliverables.Where(d => d.BookingId == deliverable.BookingId).AllAsync(d => d.Status == "Approved");
         if (allApproved)
         {
-            deliverable.Booking.Status = "Completed";
+            deliverable.Booking.Status = "completed";
             deliverable.Booking.UpdatedAt = DateTime.UtcNow;
 
             // Release funds to KOL wallet
@@ -112,12 +115,12 @@ public class DeliverableController : Controller
                 Amount = deliverable.Booking.AgreedSubtotal,
                 TransactionType = "BookingIncome",
                 ReferenceId = deliverable.BookingId,
-                Description = $"Thu nhập từ đơn hàng #{deliverable.BookingId.ToString().Substring(0,8)}",
+                Description = $"Thu nhập từ đơn hàng #{deliverable.BookingId.ToString().Substring(0, 8)}",
                 CreatedAt = DateTime.UtcNow
             });
-        }
 
-        await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+        }
         return RedirectToAction("Details", "Booking", new { id = deliverable.BookingId });
     }
 }

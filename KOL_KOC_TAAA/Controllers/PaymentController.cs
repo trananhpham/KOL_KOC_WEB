@@ -32,7 +32,7 @@ public class PaymentController : Controller
             .FirstOrDefaultAsync(b => b.Id == bookingId && b.CustomerUserId == GetCurrentUserId());
 
         if (booking == null) return NotFound();
-        if (booking.Status == "Paid" || booking.Status == "Completed") 
+        if (booking.Status == "paid" || booking.Status == "completed") 
             return BadRequest("Đơn hàng này đã được thanh toán hoặc đã hoàn thành.");
 
         var model = new CheckoutViewModel
@@ -67,7 +67,7 @@ public class PaymentController : Controller
             Tax = booking.TaxAmount,
             Total = booking.TotalAmount,
             Currency = booking.Currency,
-            Status = "Paid",
+            Status = "paid",
             IssuedAt = DateTime.UtcNow,
             PaidAt = DateTime.UtcNow,
             CreatedAt = DateTime.UtcNow,
@@ -86,7 +86,7 @@ public class PaymentController : Controller
             Amount = invoice.Total,
             Currency = invoice.Currency,
             MethodType = model.PaymentMethod,
-            Status = "Succeeded",
+            Status = "succeeded",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -99,13 +99,13 @@ public class PaymentController : Controller
             ProviderChargeId = "ch_" + Guid.NewGuid().ToString("N"),
             PaidAmount = intent.Amount,
             PaidAt = DateTime.UtcNow,
-            Status = "Succeeded",
+            Status = "succeeded",
             CreatedAt = DateTime.UtcNow
         };
         _context.Payments.Add(payment);
 
         // 3. Update Booking Status
-        booking.Status = "Paid";
+        booking.Status = "paid";
         booking.UpdatedAt = DateTime.UtcNow;
 
         // 4. Notify KOL

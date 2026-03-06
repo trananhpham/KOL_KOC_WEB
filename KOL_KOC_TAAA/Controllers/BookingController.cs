@@ -225,9 +225,11 @@ public class BookingController : Controller
             {
                 Id = Guid.NewGuid(),
                 UserId = request.CustomerUserId,
-                Type = "BookingAccepted",
-                Title = "Yêu cầu đã được chấp nhận",
-                Body = $"KOL đã chấp nhận yêu cầu của bạn. Vui lòng thanh toán để bắt đầu.",
+                Type = status == "accepted" ? "BookingAccepted" : "BookingDeclined",
+                Title = status == "accepted" ? "Yêu cầu đã được chấp nhận" : "Yêu cầu đã bị từ chối",
+                Body = status == "accepted"
+                    ? $"KOL đã chấp nhận yêu cầu của bạn. Vui lòng thanh toán để bắt đầu."
+                    : $"KOL đã từ chối yêu cầu của bạn.",
                 CreatedAt = DateTime.UtcNow
             });
 

@@ -37,9 +37,15 @@ public class ChatController : Controller
             .Select(m => new ConversationViewModel
             {
                 Id = m.ConversationId,
-                OtherUserName = m.Conversation.ChatMembers.FirstOrDefault(cm => cm.UserId != userId).User.FullName ?? "User",
-                LastMessage = m.Conversation.ChatMessages.OrderByDescending(msg => msg.SentAt).FirstOrDefault().Content ?? "[No messages]",
-                LastMessageTime = m.Conversation.ChatMessages.OrderByDescending(msg => msg.SentAt).FirstOrDefault().SentAt,
+                OtherUserName = m.Conversation.ChatMembers.FirstOrDefault(cm => cm.UserId != userId) != null
+                    ? (m.Conversation.ChatMembers.FirstOrDefault(cm => cm.UserId != userId)!.User.FullName ?? "User")
+                    : "User",
+                LastMessage = m.Conversation.ChatMessages.OrderByDescending(msg => msg.SentAt).FirstOrDefault() != null
+                    ? (m.Conversation.ChatMessages.OrderByDescending(msg => msg.SentAt).FirstOrDefault()!.Content ?? "[No messages]")
+                    : "[No messages]",
+                LastMessageTime = m.Conversation.ChatMessages.OrderByDescending(msg => msg.SentAt).FirstOrDefault() != null
+                    ? m.Conversation.ChatMessages.OrderByDescending(msg => msg.SentAt).FirstOrDefault()!.SentAt
+                    : DateTime.MinValue,
                 ConversationType = m.Conversation.Type
             })
             .OrderByDescending(c => c.LastMessageTime)
