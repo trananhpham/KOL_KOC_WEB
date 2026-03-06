@@ -1,106 +1,154 @@
+@using System.Linq
 @model KOL_KOC_TAAA.ViewModels.PublicKolProfileViewModel
 @{
     ViewData["Title"] = $"Hồ sơ KOL {Model.FullName} - {Model.InfluencerType} Influencer tại {Model.LocationCity}";
     ViewData["MetaDescription"] = $"Xem hồ sơ chi tiết của KOL {Model.FullName}. Chuyên gia {Model.InfluencerType} tại {Model.LocationCity}. Xem bảng giá dịch vụ và các sản phẩm đã thực hiện.";
 }
-
-<nav aria-label="breadcrumb" class="mb-4">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-action="Index" class="text-decoration-none">Trang chủ</a></li>
-        <li class="breadcrumb-item"><a asp-action="Search" class="text-decoration-none">KOLs</a></li>
-        <li class="breadcrumb-item active" aria-current="page">@Model.FullName</li>
-    </ol>
-</nav>
-
-<div class="row g-4">
-    <!-- Left column: Profile info -->
-    <div class="col-lg-4">
-        <div class="card shadow-sm border-0 sticky-top" style="top: 100px;">
-            <div class="card-body text-center p-4">
-                <div class="position-relative d-inline-block mb-4">
-                    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.FullName)&size=200&background=random" class="rounded-circle shadow-sm" alt="@Model.FullName" style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff;">
+<div class="profile-header mb-5">
+    <div class="profile-cover shimmer"></div>
+    <div class="container px-4">
+        <div class="row align-items-end profile-avatar-wrap">
+            <div class="col-auto">
+                <div class="position-relative">
+                    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(Model.FullName)&size=200&background=random" 
+                         class="rounded-circle shadow-lg border border-4 border-white animate-float" 
+                         alt="@Model.FullName" 
+                         style="width: 160px; height: 160px; object-fit: cover;">
                     @if (Model.IsVerified)
                     {
-                        <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm">
-                            <i class="bi bi-patch-check-fill text-primary fs-3"></i>
+                        <div class="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow">
+                            <i class="bi bi-patch-check-fill text-primary" style="font-size: 1.8rem;"></i>
                         </div>
                     }
                 </div>
-                
-                <h1 class="h3 fw-bold mb-1">@Model.FullName</h1>
-                <p class="text-primary fw-medium mb-3">@Model.InfluencerType Influencer</p>
-                
-                <div class="d-flex justify-content-center gap-2 mb-4">
-                    <span class="badge bg-warning text-dark px-3 py-2">⭐ @Model.RatingAvg</span>
-                    <span class="badge bg-light text-muted px-3 py-2 border">@Model.RatingCount đánh giá</span>
-                </div>
-
-                <div class="d-flex align-items-center justify-content-center text-muted small mb-4">
-                    <i class="bi bi-geo-alt-fill me-2 text-danger"></i> @Model.LocationCity, @Model.LocationCountry
-                </div>
-                
-                <hr class="my-4 opacity-10">
-                
-                <div class="text-start mb-4">
-                    <h6 class="fw-bold text-uppercase small text-muted mb-3">Giới thiệu</h6>
-                    <p class="text-secondary small line-height-lg">
-                        @(string.IsNullOrWhiteSpace(Model.Bio) ? "KOL này hiện chưa cập nhật tiểu sử chi tiết." : Model.Bio)
-                    </p>
-                </div>
-
-                <div class="text-start">
-                    <h6 class="fw-bold text-uppercase small text-muted mb-3">Mạng xã hội</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach (var social in Model.SocialAccounts)
-                        {
-                            <a href="@social.ProfileUrl" target="_blank" class="btn btn-outline-light text-dark btn-sm border shadow-xs d-flex align-items-center gap-2">
-                                <i class="bi bi-link-45deg"></i>
-                                <span class="fw-semibold">@social.Platform</span>
-                                <span class="text-muted small">@(social.Followers?.ToString("N0") ?? "0")</span>
-                            </a>
-                        }
+            </div>
+            <div class="col py-3">
+                <h1 class="display-5 fw-bold mb-1">@Model.FullName</h1>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <span class="badge rounded-pill bg-primary px-3 py-2 fw-semibold">@Model.InfluencerType Influencer</span>
+                    <span class="text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i> @Model.LocationCity, @Model.LocationCountry</span>
+                    <div class="vr opacity-25 d-none d-md-block"></div>
+                    <div class="d-flex align-items-center">
+                        <span class="text-warning fw-bold me-1">⭐ @Model.RatingAvg</span>
+                        <span class="text-muted small">(@Model.RatingCount đánh giá)</span>
                     </div>
+                </div>
+            </div>
+            <div class="col-lg-auto py-3">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary btn-lg rounded-pill shadow-sm px-4">
+                        <i class="bi bi-calendar-check me-2"></i>Đặt lịch ngay
+                    </button>
+                    <button class="btn btn-outline-light text-dark border rounded-pill px-3 shadow-xs">
+                        <i class="bi bi-share"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Right column: Rate Cards & Portfolio -->
-    <div class="col-lg-8">
-        <!-- Rate Cards -->
-        <div class="card border-0 mb-4 h-auto">
-            <div class="card-header bg-white border-bottom-0 pt-4 px-4">
-                <h4 class="fw-bold mb-0">Bảng giá dịch vụ</h4>
-                <p class="text-muted small">Lựa chọn gói dịch vụ phù hợp với ngân sách của bạn</p>
+<div class="container">
+    <div class="row g-5">
+        <!-- Dashboard Sidebar -->
+        <div class="col-lg-4">
+            <div class="glass-card p-4 rounded-4 mb-4 sticky-top" style="top: 100px;">
+                <h5 class="fw-bold mb-4">Giới thiệu bản thân</h5>
+                <p class="text-secondary mb-5" style="line-height: 1.8;">
+                    @(string.IsNullOrWhiteSpace(Model.Bio) ? "Hồ sơ đang được cập nhật..." : Model.Bio)
+                </p>
+
+                <h5 class="fw-bold mb-3">Kết nối mạng xã hội</h5>
+                <div class="d-grid gap-2 mb-4">
+                    @foreach (var social in Model.SocialAccounts)
+                    {
+                        <a href="@social.ProfileUrl" target="_blank" class="btn btn-light border-0 d-flex justify-content-between align-items-center p-3 hover-lift" style="background: var(--background);">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="rounded-circle bg-white shadow-xs p-2 d-flex">
+                                    <i class="bi bi-@(social.Platform.ToLower() == "facebook" ? "facebook text-primary" : "link-45deg") fs-5"></i>
+                                </div>
+                                <span class="fw-bold">@social.Platform</span>
+                            </div>
+                            <span class="badge bg-white text-dark border rounded-pill">@(social.Followers?.ToString("N0") ?? "0")</span>
+                        </a>
+                    }
+                </div>
+
+                <div class="p-3 bg-primary-light rounded-3 border border-primary border-opacity-10 mt-auto">
+                    <div class="small text-primary fw-bold mb-1">Ngân sách dự kiến</div>
+                    <div class="h4 fw-bold text-primary mb-0">Từ @(Model.MinBudget?.ToString("N0") ?? "N/A") <small>VND</small></div>
+                </div>
             </div>
-            <div class="card-body p-4 pt-2">
+        </div>
+
+        <!-- Main Content: Repository & Rate Cards -->
+        <div class="col-lg-8">
+            <!-- Portfolio Section (The "Repository") -->
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="fw-bold mb-0">Portfolio Highlight</h3>
+                    <span class="badge bg-light text-muted border px-3">@Model.Portfolios.Count() Sản phẩm</span>
+                </div>
+                
+                <div class="portfolio-container">
+                    @if (!Model.Portfolios.Any())
+                    {
+                        @for (int i = 1; i <= 3; i++)
+                        {
+                            <div class="portfolio-item shimmer">
+                                <div class="d-flex align-items-center justify-content-center h-100 opacity-25">
+                                    <i class="bi bi-image fs-1"></i>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        @foreach (var p in Model.Portfolios)
+                        {
+                            <div class="portfolio-item hover-lift">
+                                <img src="https://picsum.photos/seed/@p.Id/500/500" class="portfolio-img" alt="Work">
+                                <div class="portfolio-overlay">
+                                    <h6 class="portfolio-title">@p.Title</h6>
+                                    <a href="@p.MediaUrl" target="_blank" class="portfolio-link">
+                                        Xem chi tiết <i class="bi bi-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Services Section -->
+            <div>
+                <h3 class="fw-bold mb-4">Dịch vụ & Báo giá</h3>
                 @if (!Model.RateCards.Any())
                 {
-                    <div class="text-center py-4 bg-light rounded-3">
-                        <i class="bi bi-cash-stack fs-1 text-muted opacity-50 mb-2"></i>
-                        <p class="text-muted">KOL này chưa công khai bảng giá chi tiết.</p>
-                        <button class="btn btn-outline-primary btn-sm rounded-pill">Liên hệ báo giá</button>
+                    <div class="p-5 text-center bg-light rounded-4 border-dashed">
+                        <p class="text-muted mb-0">Vui lòng liên hệ trực tiếp để có bảng giá chi tiết.</p>
                     </div>
                 }
                 else
                 {
                     @foreach (var rc in Model.RateCards)
                     {
-                        <div class="mb-4 last-child-mb-0">
-                            <h5 class="fw-bold fs-6 border-start border-4 border-primary ps-2 mb-3">@rc.Title</h5>
+                        <div class="mb-5">
+                            <h5 class="text-uppercase small fw-bold text-primary mb-3 letter-spacing-1">@rc.Title</h5>
                             <div class="row g-3">
                                 @foreach (var item in rc.RateCardItems)
                                 {
                                     <div class="col-md-6">
-                                        <div class="p-3 border rounded-3 bg-light-subtle h-100">
-                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <div class="fw-bold text-dark">@item.ServiceType</div>
-                                                <div class="text-primary fw-bold">@item.UnitPrice.ToString("N0") <small>@rc.Currency</small></div>
+                                        <div class="card glass-card h-100 p-4 hover-lift">
+                                            <div class="d-flex justify-content-between mb-3">
+                                                <span class="badge bg-accent-light text-accent rounded-pill px-3">@item.Platform</span>
+                                                <div class="h5 fw-bold text-primary mb-0">@item.UnitPrice.ToString("N0") <small>@rc.Currency</small></div>
                                             </div>
-                                            <p class="text-muted mb-3 small">@item.Description</p>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="text-muted small"><i class="bi bi-clock me-1"></i>@(item.DurationMinutes ?? 0)m</span>
-                                                <a asp-controller="Booking" asp-action="Create" asp-route-kolId="@Model.UserId" class="btn btn-primary btn-sm rounded-pill">Chọn gói</a>
+                                            <h6 class="fw-bold mb-2">@item.ServiceType</h6>
+                                            <p class="text-muted small mb-4">@item.Description</p>
+                                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                                <span class="small text-muted"><i class="bi bi-clock-history me-1"></i>Hoàn thành nhanh</span>
+                                                <a asp-controller="Booking" asp-action="Create" asp-route-kolId="@Model.UserId" class="btn btn-primary btn-sm rounded-pill px-3">Chọn ngay</a>
                                             </div>
                                         </div>
                                     </div>
@@ -111,46 +159,6 @@
                 }
             </div>
         </div>
-        
-        <!-- Portfolio -->
-        <div class="card border-0">
-            <div class="card-header bg-white border-bottom-0 pt-4 px-4">
-                <h4 class="fw-bold mb-0">Portfolio Highlights</h4>
-                <p class="text-muted small">Sản phẩm tiêu biểu đã thực hiện</p>
-            </div>
-            <div class="card-body p-4 pt-2">
-                @if (!Model.Portfolios.Any())
-                {
-                    <div class="row g-3">
-                        @for (int i = 1; i <= 3; i++)
-                        {
-                            <div class="col-md-4">
-                                <div class="ratio ratio-1x1 bg-light rounded-3 d-flex align-items-center justify-content-center border border-dashed">
-                                    <i class="bi bi-image text-muted fs-1 opacity-25"></i>
-                                </div>
-                            </div>
-                        }
-                        <div class="col-12 text-center mt-3">
-                            <p class="text-muted small italic">Chưa có sản phẩm demo được tải lên.</p>
-                        </div>
-                    </div>
-                }
-                else {
-                    <div class="row g-3">
-                         @foreach(var p in Model.Portfolios) {
-                             <div class="col-md-4">
-                                <div class="card h-100 border p-1 shadow-xs">
-                                    <img src="https://picsum.photos/seed/@p.Id/400/400" class="img-fluid rounded-2" alt="Portfolio Image">
-                                    <div class="card-body p-2">
-                                        <h6 class="small fw-bold mb-1">@p.Title</h6>
-                                        <a href="@p.MediaUrl" target="_blank" class="very-small text-primary text-decoration-none">Link chi tiết <i class="bi bi-external-link"></i></a>
-                                    </div>
-                                </div>
-                             </div>
-                         }
-                    </div>
-                }
-            </div>
-        </div>
     </div>
 </div>
+

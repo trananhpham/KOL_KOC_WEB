@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KOL_KOC_TAAA.Models;
 
-[Index("Phone", Name = "UQ__Users__5C7E359EE8FD8754", IsUnique = true)]
 [Index("Email", Name = "UQ__Users__A9D105340CB4E8BC", IsUnique = true)]
 public partial class User
 {

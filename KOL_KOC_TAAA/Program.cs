@@ -3,6 +3,7 @@ using KOL_KOC_TAAA.Data;
 using KOL_KOC_TAAA.Services;
 using KOL_KOC_TAAA.Models;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
@@ -34,6 +35,7 @@ builder.Services.AddDbContext<KolMarketplaceContext>(options =>
     options.UseSqlServer(connectionString));
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

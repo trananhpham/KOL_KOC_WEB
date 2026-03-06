@@ -4,6 +4,7 @@ using KOL_KOC_TAAA.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KOL_KOC_TAAA.Migrations
 {
     [DbContext(typeof(KolMarketplaceContext))]
-    partial class KolMarketplaceContextModelSnapshot : ModelSnapshot
+    [Migration("20260306091910_FixRegistrationConstraints")]
+    partial class FixRegistrationConstraints
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

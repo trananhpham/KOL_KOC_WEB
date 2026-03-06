@@ -643,6 +643,10 @@ public partial class KolMarketplaceContext : DbContext
                         j.HasKey("UserId", "RoleId").HasName("PK__UserRole__AF2760AD2D12419B");
                         j.ToTable("UserRoles");
                     });
+            entity.HasIndex(e => e.Phone)
+                .IsUnique()
+                .HasFilter("[Phone] IS NOT NULL")
+                .HasDatabaseName("UQ_Users_Phone_Filtered");
         });
 
         modelBuilder.Entity<UserSubscription>(entity =>
