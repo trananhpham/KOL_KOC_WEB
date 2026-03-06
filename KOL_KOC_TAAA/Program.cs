@@ -1,11 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using KOL_KOC_TAAA.Data;
 using KOL_KOC_TAAA.Services;
+using KOL_KOC_TAAA.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<IGroqService, GroqService>();
+
+// Configure MoMo Options
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("Momo"));
+builder.Services.AddHttpClient<IMomoService, MomoService>();
 
 builder.Services.AddAuthentication("KolCookies")
     .AddCookie("KolCookies", options =>

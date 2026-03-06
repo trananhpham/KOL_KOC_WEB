@@ -37,19 +37,24 @@
                         <input type="hidden" asp-for="BookingId" />
                         
                         <div class="mb-4">
-                            <label class="form-label fw-bold">Phương thức thanh toán</label>
-                            <div class="form-check border p-3 rounded mb-2">
-                                <input class="form-check-input ms-0" type="radio" asp-for="PaymentMethod" value="E-Wallet" id="ewallet" checked>
-                                <label class="form-check-label ms-4 d-block" for="ewallet">
-                                    <strong>Ví điện tử (Momo/ZaloPay)</strong>
-                                    <br/><small class="text-muted">Thanh toán nhanh qua QR Code</small>
+                            <label class="form-label fw-bold">Chọn phương thức thanh toán</label>
+                            
+                            <div class="form-check border p-3 rounded mb-2 shadow-sm highlight-on-hover">
+                                <input class="form-check-input ms-0" type="radio" asp-for="PaymentMethod" value="Momo" id="momo" checked>
+                                <label class="form-check-label ms-4 d-block" for="momo">
+                                    <div class="d-flex align-items-center">
+                                        <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" alt="MoMo" style="height: 24px;" class="me-2">
+                                        <strong>Ví MoMo</strong>
+                                    </div>
+                                    <small class="text-muted">Thanh toán qua ứng dụng MoMo (QR Code / ATM)</small>
                                 </label>
                             </div>
+
                             <div class="form-check border p-3 rounded mb-2">
                                 <input class="form-check-input ms-0" type="radio" asp-for="PaymentMethod" value="BankTransfer" id="bank">
                                 <label class="form-check-label ms-4 d-block" for="bank">
                                     <strong>Chuyển khoản ngân hàng</strong>
-                                    <br/><small class="text-muted">Vietcombank / Techcombank</small>
+                                    <br/><small class="text-muted">Vietcombank / Techcombank (Xử lý thủ công)</small>
                                 </label>
                             </div>
                         </div>
