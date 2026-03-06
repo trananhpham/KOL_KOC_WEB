@@ -1,92 +1,152 @@
 @model IEnumerable<KOL_KOC_TAAA.Models.PayoutRequest>
 @{
-    ViewData["Title"] = "Quản lý Rút tiền";
+    ViewData["Title"] = "Quản lý Tài chính & Rút tiền";
 }
 
-<div class="mb-4">
-    <h3 class="fw-bold">Yêu cầu rút tiền</h3>
-    <p class="text-muted">Danh sách các yêu cầu rút tiền từ ví KOL.</p>
+<div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+        <h3 class="fw-bold mb-1">Yêu cầu rút tiền</h3>
+        <p class="text-muted small mb-0">Xử lý các giao dịch rút tiền từ ví của Influencers</p>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-white border rounded-pill px-4 shadow-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-filter me-2"></i>Lọc trạng thái
+        </button>
+        <ul class="dropdown-menu border-0 shadow-lg" style="border-radius: 1rem;">
+            <li><a class="dropdown-item" href="#">Tất cả</a></li>
+            <li><a class="dropdown-item" href="#">Đang chờ</a></li>
+            <li><a class="dropdown-item" href="#">Đã duyệt</a></li>
+            <li><a class="dropdown-item" href="#">Đã từ chối</a></li>
+        </ul>
+    </div>
 </div>
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
+    <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4 py-3 animate-fade-in" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+            <div>@TempData["SuccessMessage"]</div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<div class="card admin-card">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
+<div class="glass-card-admin border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small text-uppercase letter-spacing-1">
+                    <th class="border-0 pb-3">Influencer</th>
+                    <th class="border-0 pb-3">Số tiền</th>
+                    <th class="border-0 pb-3">Ngân hàng</th>
+                    <th class="border-0 pb-3">Ngày tạo</th>
+                    <th class="border-0 pb-3">Trạng thái</th>
+                    <th class="border-0 pb-3 text-end">Xử lý</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model)
+                {
                     <tr>
-                        <th>Người dùng</th>
-                        <th>Số tiền</th>
-                        <th>Thông tin ngân hàng</th>
-                        <th>Thời gian</th>
-                        <th>Trạng thái</th>
-                        <th class="text-end">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var p in Model)
-                    {
-                        <tr>
-                            <td>
-                                <div class="fw-bold">@p.User.FullName</div>
-                                <div class="small text-muted">@p.User.Email</div>
-                            </td>
-                            <td class="fw-bold text-primary">@p.Amount.ToString("N0") @p.Currency</td>
-                            <td style="max-width: 200px;" class="small">@p.BankInfoJson</td>
-                            <td class="small">@p.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td>
-                                <span class="badge rounded-pill @(p.Status switch {
-                                    "Pending" => "bg-warning text-dark",
-                                    "Approved" => "bg-success",
-                                    "Rejected" => "bg-danger",
-                                    _ => "bg-secondary"
-                                })">@p.Status</span>
-                            </td>
-                            <td class="text-end">
-                                @if (p.Status == "Pending")
-                                {
-                                    <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#modal-@p.Id">Xử lý</button>
+                        <td class="py-4 border-0">
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(p.User.FullName)&background=random" class="rounded-circle me-3" style="width: 40px; height: 40px;">
+                                <div>
+                                    <div class="fw-bold mb-0">@p.User.FullName</div>
+                                    <div class="text-muted small">@p.User.Email</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 border-0 fw-bold text-primary">
+                            @p.Amount.ToString("N0") <span class="small fw-normal">@p.Currency</span>
+                        </td>
+                        <td class="py-4 border-0">
+                            <div class="bg-light p-2 rounded-3 small text-truncate" style="max-width: 180px;" title="@p.BankInfoJson">
+                                <i class="bi bi-bank me-2 text-muted"></i>@p.BankInfoJson
+                            </div>
+                        </td>
+                        <td class="py-4 border-0 small text-muted">
+                            @p.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        <td class="py-4 border-0">
+                            @{
+                                var badgeClass = p.Status switch {
+                                    "Pending" => "bg-warning-subtle text-warning",
+                                    "Approved" => "bg-success-subtle text-success",
+                                    "Rejected" => "bg-danger-subtle text-danger",
+                                    _ => "bg-secondary-subtle text-secondary"
+                                };
+                            }
+                            <span class="badge rounded-pill px-3 py-2 @badgeClass">
+                                @(p.Status == "Pending" ? "Đang chờ" : p.Status == "Approved" ? "Đã duyệt" : "Từ chối")
+                            </span>
+                        </td>
+                        <td class="py-4 border-0 text-end">
+                            @if (p.Status == "Pending")
+                            {
+                                <button class="btn btn-sm btn-primary rounded-pill px-3 shadow-premium" data-bs-toggle="modal" data-bs-target="#modal-@p.Id"> Xử lý giao dịch</button>
 
-                                    <!-- Modal -->
-                                    <div class="modal fade" id="modal-@p.Id" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog text-start">
-                                            <div class="modal-content">
-                                                <form asp-action="ProcessPayout" method="post">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="payoutId" value="@p.Id" />
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Xử lý yêu cầu: @p.Amount.ToString("N0") VND</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <!-- Premium Modal -->
+                                <div class="modal fade" id="modal-@p.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow-lg" style="border-radius: 2rem;">
+                                            <form asp-action="ProcessPayout" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="payoutId" value="@p.Id" />
+                                                <div class="modal-header border-0 pb-0 pt-4 px-4 justify-content-center">
+                                                    <div class="bg-primary-light p-3 rounded-circle text-primary mb-3">
+                                                        <i class="bi bi-cash-stack fs-2"></i>
                                                     </div>
-                                                    <div class="modal-body">
-                                                        <p>KOL: <strong>@p.User.FullName</strong></p>
-                                                        <p>Bank: <code>@p.BankInfoJson</code></p>
-                                                        <div class="mb-3">
-                                                            <label class="form-label">Ghi chú (nếu có)</label>
-                                                            <textarea name="adminNote" class="form-control" rows="2"></textarea>
+                                                </div>
+                                                <div class="modal-body px-4 text-center">
+                                                    <h4 class="fw-bold mb-1">Xử lý rút tiền</h4>
+                                                    <p class="text-muted small mb-4">Phê duyệt yêu cầu thanh toán cho @p.User.FullName</p>
+                                                    
+                                                    <div class="bg-light rounded-4 p-3 mb-4 text-start">
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span class="text-muted small">Số tiền:</span>
+                                                            <span class="fw-bold">@p.Amount.ToString("N0") VND</span>
                                                         </div>
-                                                        <div class="d-flex gap-2">
-                                                            <button type="submit" name="approve" value="true" class="btn btn-success flex-grow-1">Duyệt và Chuyển tiền</button>
-                                                            <button type="submit" name="approve" value="false" class="btn btn-danger flex-grow-1">Từ chối</button>
+                                                        <div class="d-flex justify-content-between">
+                                                            <span class="text-muted small">Ngân hàng:</span>
+                                                            <code class="small">@p.BankInfoJson</code>
                                                         </div>
                                                     </div>
-                                                </form>
-                                            </div>
+
+                                                    <div class="mb-4 text-start">
+                                                        <label class="form-label small fw-bold text-uppercase" style="letter-spacing: 1px;">Ghi chú nội bộ</label>
+                                                        <textarea name="adminNote" class="form-control border-0 bg-light rounded-3" rows="3" placeholder="Lý do từ chối hoặc mã giao dịch ngân hàng..."></textarea>
+                                                    </div>
+
+                                                    <div class="d-grid gap-2 mb-2">
+                                                        <button type="submit" name="approve" value="true" class="btn btn-primary py-3 rounded-4 fw-bold shadow-premium">Duyệt & Ghi nhận Chuyển tiền</button>
+                                                        <button type="submit" name="approve" value="false" class="btn btn-outline-danger py-3 border-0 rounded-4">Từ chối yêu cầu</button>
+                                                    </div>
+                                                    <button type="button" class="btn btn-link text-muted small text-decoration-none" data-bs-dismiss="modal">Để sau</button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </div>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-light rounded-pill px-3 disabled">Hoàn tất</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2 opacity-25"></i>
+                            Chưa có yêu cầu rút tiền nào.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
