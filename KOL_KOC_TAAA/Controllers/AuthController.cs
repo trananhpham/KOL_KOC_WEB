@@ -10,11 +10,11 @@ namespace KOL_KOC_TAAA.Controllers;
 
 public class AuthController : Controller
 {
-    private readonly KolMarketplaceContext _context;
+    private readonly IAuthService _authService;
 
-    public AuthController(KolMarketplaceContext context)
+    public AuthController(IAuthService authService)
     {
-        _context = context;
+        _authService = authService;
     }
 
     [HttpGet]
@@ -33,50 +33,18 @@ public class AuthController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        var user = await _context.Users
-            .Include(u => u.Roles)
-            .FirstOrDefaultAsync(u => u.Email == model.Email);
+        var result = await _authService.LoginAsync(model);
 
-        if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash))
+        if (result.Success)
         {
-            ModelState.AddModelError(string.Empty, "Email hoặc mật khẩu không chính xác.");
-            return View(model);
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return LocalRedirect(returnUrl);
+
+            return RedirectToAction("Index", "Home");
         }
 
-        if (user.Status != "active")
-        {
-            ModelState.AddModelError(string.Empty, "Tài khoản của bạn đã bị vô hiệu hóa.");
-            return View(model);
-        }
-
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.FullName ?? user.Email)
-        };
-
-        foreach (var role in user.Roles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role.Code));
-        }
-
-        var identity = new ClaimsIdentity(claims, "KolCookies");
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync("KolCookies", principal, new AuthenticationProperties
-        {
-            IsPersistent = true,
-            ExpiresUtc = DateTime.UtcNow.AddHours(8)
-        });
-
-        // Set simple session data
-        HttpContext.Session.SetString("UserName", user.FullName ?? user.Email);
-
-        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            return LocalRedirect(returnUrl);
-
-        return RedirectToAction("Index", "Home");
+        ModelState.AddModelError(string.Empty, result.Message);
+        return View(model);
     }
 
     [HttpGet]
@@ -95,64 +63,23 @@ public class AuthController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        if (await _context.Users.AnyAsync(u => u.Email == model.Email))
+        var result = await _authService.RegisterAsync(model);
+
+        if (result.Success)
         {
-            ModelState.AddModelError("Email", "Email này đã được sử dụng.");
-            return View(model);
+            TempData["SuccessMessage"] = result.Message;
+            return RedirectToAction("Login");
         }
 
-        // Assign default Role code (must match DB unique constraint UQ__Roles__A25C5AA7A32F6946)
-        string defaultCode = model.Role == "KOL" ? "KOL" : "CUSTOMER";
-        
-        // Find existing role by Code (case-insensitive) - ToUpper() is safer for some providers
-        var role = await _context.Roles
-            .FirstOrDefaultAsync(r => r.Code.ToUpper() == defaultCode.ToUpper());
-
-        if (role == null)
-        {
-            // Seed the role ONLY if it truly doesn't exist
-            role = new Role { 
-                Code = defaultCode, 
-                Name = (defaultCode == "KOL" ? "KOL" : "Khách hàng") 
-            };
-            _context.Roles.Add(role);
-            await _context.SaveChangesAsync(); // Commit role first to be absolutely sure
-        }
-
-        var newUser = new User
-        {
-            Id = Guid.NewGuid(),
-            Email = model.Email,
-            FullName = model.Email.Split('@')[0], // Set default FullName as prefix of email
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
-            Status = "active",
-            Roles = new List<Role> { role }
-        };
-
-        _context.Users.Add(newUser);
-        
-        // Also create KolProfile if role is KOL
-        if (defaultCode == "KOL")
-        {
-            _context.KolProfiles.Add(new KolProfile { UserId = newUser.Id, InfluencerType = "Nano", Bio = "" });
-        }
-        else
-        {
-            _context.UserWallets.Add(new UserWallet { UserId = newUser.Id, Balance = 0, LockedBalance = 0, Currency = "VND" });
-        }
-
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Đăng ký thành công! Bạn có thể đăng nhập ngay.";
-        return RedirectToAction("Login");
+        ModelState.AddModelError(string.Empty, result.Message);
+        return View(model);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync("KolCookies");
-        HttpContext.Session.Clear();
+        await _authService.LogoutAsync();
         return RedirectToAction("Index", "Home");
     }
 
@@ -165,40 +92,10 @@ public class AuthController : Controller
     [HttpGet]
     public async Task<IActionResult> SeedAdmin()
     {
-        var adminRole = await _context.Roles.FirstOrDefaultAsync(r => r.Code == "Admin");
-        if (adminRole == null)
-        {
-            adminRole = new Role { Code = "Admin", Name = "Quản trị viên" };
-            _context.Roles.Add(adminRole);
-            await _context.SaveChangesAsync();
-        }
-
-        var adminUser = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Email == "admin@kol.com");
-        if (adminUser == null)
-        {
-            adminUser = new User
-            {
-                Id = Guid.NewGuid(),
-                Email = "admin@kol.com",
-                FullName = "Hệ thống Admin",
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-                Status = "active",
-                Roles = new List<Role> { adminRole }
-            };
-            _context.Users.Add(adminUser);
-            await _context.SaveChangesAsync();
-        }
-        else 
-        {
-            if (!adminUser.Roles.Any(r => r.Code == "Admin"))
-            {
-                adminUser.Roles.Add(adminRole);
-            }
-            // Reset lại mật khẩu phòng trường hợp tài khoản đã tạo từ trước với mật khẩu khác
-            adminUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123");
-            await _context.SaveChangesAsync();
-        }
-
-        return Content("Đã thiết lập tài khoản Admin thành công! Username: admin@kol.com | Password: admin123");
+        await _authService.SeedAdminAsync();
+        return Content("<h3>Cấu hình Admin thành công!</h3>" + 
+                       "<p>Tài khoản hệ thống: <b>admin@kol.com</b> / mật khẩu: <b>admin123</b></p>" +
+                       "<p>Các tài khoản admin@example.com cũng đã được nâng cấp.</p>" +
+                       "<a href='/Auth/Login'>Đến trang Đăng nhập</a>", "text/html", System.Text.Encoding.UTF8);
     }
 }

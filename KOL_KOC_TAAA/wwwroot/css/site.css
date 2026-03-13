@@ -536,3 +536,203 @@ body {
 .btn-pill {
   border-radius: 2rem;
 }
+
+/* ============================
+   KOL CARD — Premium Design
+   ============================ */
+.kol-card {
+  background: #fff;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px -4px rgba(99, 102, 241, 0.08);
+  transition: transform 0.36s cubic-bezier(0.165, 0.84, 0.44, 1),
+    box-shadow 0.36s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.kol-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 48px -8px rgba(99, 102, 241, 0.22);
+}
+
+/* Image wrapper */
+.kol-card-img-wrap {
+  position: relative;
+  overflow: hidden;
+  height: 220px;
+  display: block;
+  text-decoration: none;
+}
+
+.kol-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.kol-card:hover .kol-card-img {
+  transform: scale(1.08);
+}
+
+/* Hover overlay */
+.kol-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top,
+      rgba(15, 23, 42, 0.75) 0%,
+      rgba(15, 23, 42, 0.0) 55%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 1.25rem;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.kol-card:hover .kol-card-overlay {
+  opacity: 1;
+}
+
+.kol-card-view-btn {
+  background: var(--primary);
+  color: #fff;
+  padding: 0.45rem 1.2rem;
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transform: translateY(10px);
+  transition: transform 0.35s ease;
+}
+
+.kol-card:hover .kol-card-view-btn {
+  transform: translateY(0);
+}
+
+/* Badges on image */
+.kol-badge-type {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--primary);
+  padding: 0.3rem 0.85rem;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.kol-badge-verified {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: var(--primary);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+/* Card body */
+.kol-card-body {
+  padding: 1.1rem 1.2rem 1rem;
+}
+
+.kol-card-name {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-main);
+}
+
+.kol-card-location {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.kol-card-location i {
+  color: #f43f5e;
+  margin-right: 3px;
+}
+
+/* Platform badges */
+.kol-platforms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.kol-platform-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.kol-platform-badge i {
+  font-size: 0.75rem;
+}
+
+/* Stats row */
+.kol-card-stats {
+  display: flex;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 0.75rem;
+}
+
+.kol-stat-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.82rem;
+}
+
+.kol-stat-label {
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+/* Footer */
+.kol-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kol-budget-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1;
+}
+
+.kol-budget {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.kol-budget small {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}

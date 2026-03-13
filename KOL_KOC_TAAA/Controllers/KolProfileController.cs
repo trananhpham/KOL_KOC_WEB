@@ -11,11 +11,11 @@ namespace KOL_KOC_TAAA.Controllers;
 [Authorize(Roles = "KOL")]
 public class KolProfileController : Controller
 {
-    private readonly KolMarketplaceContext _context;
+    private readonly IKolProfileService _profileService;
 
-    public KolProfileController(KolMarketplaceContext context)
+    public KolProfileController(IKolProfileService profileService)
     {
-        _context = context;
+        _profileService = profileService;
     }
 
     private Guid GetCurrentUserId()
@@ -28,10 +28,7 @@ public class KolProfileController : Controller
     public async Task<IActionResult> Index()
     {
         var userId = GetCurrentUserId();
-        var profile = await _context.KolProfiles
-            .Include(p => p.KolSocialAccounts)
-            .Include(p => p.RateCards)
-            .FirstOrDefaultAsync(p => p.UserId == userId);
+        var profile = await _profileService.GetProfileByUserIdAsync(userId);
 
         if (profile == null) return NotFound("Profile not found");
 
@@ -42,7 +39,7 @@ public class KolProfileController : Controller
     public async Task<IActionResult> Edit()
     {
         var userId = GetCurrentUserId();
-        var profile = await _context.KolProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+        var profile = await _profileService.GetProfileByUserIdAsync(userId);
         if (profile == null) return NotFound();
 
         var model = new KolProfileEditViewModel
@@ -66,41 +63,32 @@ public class KolProfileController : Controller
         if (!ModelState.IsValid) return View(model);
 
         var userId = GetCurrentUserId();
-        var profile = await _context.KolProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-        if (profile == null) return NotFound();
+        var success = await _profileService.UpdateProfileAsync(userId, model);
 
-        profile.InfluencerType = model.InfluencerType;
-        profile.Bio = model.Bio;
-        profile.Gender = model.Gender;
-        profile.Dob = model.Dob;
-        profile.LocationCity = model.LocationCity;
-        profile.LocationCountry = model.LocationCountry;
-        profile.MinBudget = model.MinBudget;
-        profile.UpdatedAt = DateTime.UtcNow;
+        if (success)
+        {
+            TempData["SuccessMessage"] = "Cập nhật hồ sơ thành công!";
+            return RedirectToAction(nameof(Index));
+        }
 
-        _context.KolProfiles.Update(profile);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Cập nhật hồ sơ thành công!";
-        return RedirectToAction(nameof(Index));
+        return View(model);
     }
 
     [HttpGet]
     public async Task<IActionResult> Socials()
     {
         var userId = GetCurrentUserId();
-        var accounts = await _context.KolSocialAccounts
-            .Where(s => s.KolUserId == userId)
-            .Select(s => new KolSocialAccountViewModel
-            {
-                Id = s.Id,
-                Platform = s.Platform,
-                Url = s.ProfileUrl ?? "",
-                FollowersCount = (int?)s.Followers
-            })
-            .ToListAsync();
+        var accounts = await _profileService.GetSocialAccountsAsync(userId);
+        
+        var model = accounts.Select(s => new KolSocialAccountViewModel
+        {
+            Id = s.Id,
+            Platform = s.Platform,
+            Url = s.ProfileUrl ?? "",
+            FollowersCount = (int?)s.Followers
+        }).ToList();
 
-        return View(accounts);
+        return View(model);
     }
 
     [HttpPost]
@@ -113,17 +101,8 @@ public class KolProfileController : Controller
         }
 
         var userId = GetCurrentUserId();
-        var social = new KolSocialAccount
-        {
-            Id = Guid.NewGuid(),
-            KolUserId = userId,
-            Platform = model.Platform,
-            ProfileUrl = model.Url,
-            Followers = model.FollowersCount
-        };
-
-        _context.KolSocialAccounts.Add(social);
-        await _context.SaveChangesAsync();
+        await _profileService.AddSocialAccountAsync(userId, model);
+        
         TempData["SuccessMessage"] = "Đã thêm mạng xã hội.";
         return RedirectToAction(nameof(Socials));
     }
@@ -132,13 +111,9 @@ public class KolProfileController : Controller
     public async Task<IActionResult> RemoveSocial(Guid id)
     {
         var userId = GetCurrentUserId();
-        var social = await _context.KolSocialAccounts.FirstOrDefaultAsync(s => s.Id == id && s.KolUserId == userId);
-        if (social != null)
-        {
-            _context.KolSocialAccounts.Remove(social);
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Đã xóa mạng xã hội.";
-        }
+        await _profileService.RemoveSocialAccountAsync(userId, id);
+        
+        TempData["SuccessMessage"] = "Đã xóa mạng xã hội.";
         return RedirectToAction(nameof(Socials));
     }
 
@@ -146,11 +121,7 @@ public class KolProfileController : Controller
     public async Task<IActionResult> RateCards()
     {
         var userId = GetCurrentUserId();
-        var rateCards = await _context.RateCards
-            .Include(r => r.RateCardItems)
-            .Where(r => r.KolUserId == userId)
-            .ToListAsync();
-
+        var rateCards = await _profileService.GetRateCardsAsync(userId);
         return View(rateCards);
     }
 
@@ -160,16 +131,7 @@ public class KolProfileController : Controller
         if (ModelState.IsValid)
         {
             var userId = GetCurrentUserId();
-            var rc = new RateCard
-            {
-                Id = Guid.NewGuid(),
-                KolUserId = userId,
-                Title = model.Title,
-                Currency = model.Currency,
-                IsActive = model.IsActive
-            };
-            _context.RateCards.Add(rc);
-            await _context.SaveChangesAsync();
+            await _profileService.CreateRateCardAsync(userId, model);
             TempData["SuccessMessage"] = "Tạo Rate Card thành công.";
         }
         return RedirectToAction(nameof(RateCards));

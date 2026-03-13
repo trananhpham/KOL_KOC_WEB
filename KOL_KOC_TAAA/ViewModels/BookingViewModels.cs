@@ -2,50 +2,46 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KOL_KOC_TAAA.ViewModels;
 
-public class CreateBookingViewModel
+public class CreateBookingRequestViewModel
 {
     public Guid KolUserId { get; set; }
-    public string KolName { get; set; } = null!;
-    
-    [Required]
-    [Display(Name = "Dịch vụ chọn")]
-    public Guid RateCardItemId { get; set; }
-    
-    public List<BookingRateCardItemViewModel> AvailableServices { get; set; } = new();
 
-    [Required(ErrorMessage = "Vui lòng nhập mô tả chiến dịch")]
-    [Display(Name = "Mô tả chiến dịch/Yêu cầu công việc")]
-    public string CampaignDescription { get; set; } = null!;
+    [Required(ErrorMessage = "Vui lòng nhập tiêu đề chiến dịch")]
+    [Display(Name = "Tiêu đề chiến dịch")]
+    public string Title { get; set; } = null!;
 
-    [Required]
-    [Display(Name = "Ngày dự kiến bắt đầu")]
-    [DataType(DataType.Date)]
-    public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Now.AddDays(7));
+    [Required(ErrorMessage = "Vui lòng nhập mô tả ngắn gọn (Brief)")]
+    [Display(Name = "Mô tả công việc (Brief)")]
+    public string? Brief { get; set; }
 
-    [Required]
-    [Display(Name = "Ngày dự kiến kết thúc")]
-    [DataType(DataType.Date)]
-    public DateOnly EndDate { get; set; } = DateOnly.FromDateTime(DateTime.Now.AddDays(14));
+    [Display(Name = "Ngân sách tối thiểu")]
+    public decimal? BudgetMin { get; set; }
 
-    [Display(Name = "Ghi chú thêm")]
-    public string? Notes { get; set; }
-}
+    [Display(Name = "Ngân sách tối đa")]
+    public decimal? BudgetMax { get; set; }
 
-public class BookingRateCardItemViewModel
-{
-    public Guid Id { get; set; }
-    public string Name { get; set; } = null!;
-    public decimal Price { get; set; }
     public string Currency { get; set; } = "VND";
+
+    [Display(Name = "Ngày bắt đầu dự kiến")]
+    public DateOnly? ProposedStartDate { get; set; }
+
+    [Display(Name = "Ngày kết thúc dự kiến")]
+    public DateOnly? ProposedEndDate { get; set; }
+
+    public List<BookingRequestItemViewModel> Items { get; set; } = new();
 }
 
-public class BookingListViewModel
+public class BookingRequestItemViewModel
 {
-    public Guid BookingId { get; set; }
-    public string KolName { get; set; } = null!;
-    public string BrandName { get; set; } = null!;
-    public string ServiceName { get; set; } = null!;
-    public decimal TotalAmount { get; set; }
-    public string Status { get; set; } = null!;
-    public DateTime CreatedAt { get; set; }
+    [Required]
+    public string ServiceType { get; set; } = null!;
+    
+    public string? Platform { get; set; }
+    
+    [Range(1, 100)]
+    public int Quantity { get; set; } = 1;
+
+    public decimal? ExpectedUnitPrice { get; set; }
+    
+    public string? Notes { get; set; }
 }

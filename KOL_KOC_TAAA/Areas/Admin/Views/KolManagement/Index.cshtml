@@ -10,7 +10,7 @@
     </div>
     <div class="d-flex gap-2">
         <button class="btn btn-white border rounded-pill px-4 shadow-sm"><i class="bi bi-download me-2"></i>Xuất file</button>
-        <button class="btn btn-primary btn-pill px-4 shadow-premium"><i class="bi bi-plus-lg me-2"></i>Thêm KOL</button>
+        <a asp-action="Create" class="btn btn-primary btn-pill px-4 shadow-premium"><i class="bi bi-plus-lg me-2"></i>Thêm KOL</a>
     </div>
 </div>
 
@@ -86,10 +86,18 @@
                                 <a asp-area="" asp-controller="Home" asp-action="KolDetail" asp-route-id="@k.UserId" target="_blank" class="btn btn-sm btn-light rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;" title="Xem hồ sơ">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                <a asp-action="Edit" asp-route-id="@k.UserId" class="btn btn-sm btn-light rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center text-primary" style="width: 34px; height: 34px;" title="Chỉnh sửa">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
                                 <form asp-action="ToggleVerify" method="post" class="d-inline">
                                     <input type="hidden" name="userId" value="@k.UserId" />
                                     <button type="submit" class="btn btn-sm rounded-pill px-3 @(k.IsVerified ? "btn-outline-danger" : "btn-primary shadow-sm")">
                                         @(k.IsVerified ? "Hủy duyệt" : "Duyệt ngay")
+                                    </button>
+                                </form>
+                                <form asp-action="Delete" asp-route-id="@k.UserId" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn khóa KOL này? Toàn bộ hồ sơ sẽ bị ẩn khỏi hệ thống.');">
+                                    <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle shadow-sm p-0 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px;" title="Khóa/Xóa">
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             </div>

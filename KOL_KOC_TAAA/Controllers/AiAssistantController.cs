@@ -26,17 +26,37 @@ public class AiAssistantController : ControllerBase
 
         try
         {
-            // Lấy dữ liệu thực tế từ Database để làm ngữ cảnh cho AI
-            var totalKols = await _context.KolProfiles.CountAsync();
-            var categories = await _context.KolCategories.Select(c => c.Name).ToListAsync();
-            var minPrice = await _context.RateCardItems.AnyAsync() ? await _context.RateCardItems.MinAsync(i => i.UnitPrice) : 0;
-            var avgPrice = await _context.RateCardItems.AnyAsync() ? await _context.RateCardItems.AverageAsync(i => i.UnitPrice) : 0;
-            
-            var systemContext = $"- Tổng số lượng Idol (KOL/KOC): {totalKols}\n" +
-                                $"- Các lĩnh vực hoạt động: {string.Join(", ", categories)}\n" +
-                                $"- Mức giá thấp nhất: {minPrice:N0} VND\n" +
-                                $"- Mức giá trung bình: {avgPrice:N0} VND\n" +
-                                "- Các tính năng nổi bật: Booking tự động, Thanh toán MoMo, Hợp đồng điện tử, Quản lý sản phẩm bàn giao.";
+            // Lấy dữ liệu thực tế từ Database
+            var dbKols = await _context.KolProfiles.CountAsync();
+            var minPrice = await _context.RateCardItems.AnyAsync() ? await _context.RateCardItems.MinAsync(i => i.UnitPrice) : 5_000_000m;
+            var avgPrice = await _context.RateCardItems.AnyAsync() ? await _context.RateCardItems.AverageAsync(i => i.UnitPrice) : 20_000_000m;
+
+            // Cộng thêm mock idols
+            var mockIdols = MockIdolService.GetMockIdols();
+            var totalKols = dbKols + mockIdols.Count;
+
+            // Danh sách idol nổi tiếng theo lĩnh vực
+            var idolList = string.Join("\n", mockIdols.Select(m =>
+                $"  • {m.FullName} ({m.InfluencerType}, {m.Category}) – {(m.TotalFollowers >= 1_000_000 ? $"{m.TotalFollowers / 1_000_000.0:F1}M" : $"{m.TotalFollowers / 1_000}K")} followers, nền tảng chính: {m.TopPlatform}, giá từ {m.MinBudget:N0} VND"));
+
+            var categories = mockIdols.Select(m => m.Category).Distinct().Select(c => c switch {
+                "BeautyFashion" => "Làm đẹp & Thời trang",
+                "FoodBeverage"  => "Ẩm thực",
+                "Tech"          => "Công nghệ",
+                "SportsFitness" => "Thể thao & Fitness",
+                "Travel"        => "Du lịch",
+                "Gaming"        => "Gaming",
+                _ => c
+            });
+
+            var systemContext =
+                $"- Tổng số Idol trên nền tảng: {totalKols} KOL/KOC nổi tiếng\n" +
+                $"- Các lĩnh vực: {string.Join(", ", categories)}\n" +
+                $"- Mức giá thấp nhất: {minPrice:N0} VND/chiến dịch\n" +
+                $"- Mức giá trung bình: {avgPrice:N0} VND\n" +
+                $"- Tính năng: Booking tự động, Thanh toán MoMo, Hợp đồng điện tử, Portfolio cá nhân\n" +
+                $"- Danh sách Idol nổi bật:\n{idolList}\n" +
+                $"- Liên hệ hỗ trợ: 0965534645";
 
             var response = await _groqService.GetChatResponseAsync(request.Message, systemContext);
             return Ok(new { response });

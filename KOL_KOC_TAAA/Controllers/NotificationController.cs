@@ -1,8 +1,6 @@
+using KOL_KOC_TAAA.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using KOL_KOC_TAAA.Data;
-using KOL_KOC_TAAA.Models;
 using System.Security.Claims;
 
 namespace KOL_KOC_TAAA.Controllers;
@@ -10,11 +8,11 @@ namespace KOL_KOC_TAAA.Controllers;
 [Authorize]
 public class NotificationController : Controller
 {
-    private readonly KolMarketplaceContext _context;
+    private readonly INotificationService _notificationService;
 
-    public NotificationController(KolMarketplaceContext context)
+    public NotificationController(INotificationService notificationService)
     {
-        _context = context;
+        _notificationService = notificationService;
     }
 
     private Guid GetCurrentUserId()
@@ -26,24 +24,25 @@ public class NotificationController : Controller
     [HttpGet]
     public async Task<IActionResult> GetLatest()
     {
-        var notifications = await _context.Notifications
-            .Where(n => n.UserId == GetCurrentUserId())
-            .OrderByDescending(n => n.CreatedAt)
-            .Take(5)
-            .ToListAsync();
+        var userId = GetCurrentUserId();
+        var notifications = await _notificationService.GetUserNotificationsAsync(userId, 5);
+        var unreadCount = await _notificationService.GetUnreadCountAsync(userId);
 
-        return Json(notifications);
+        return Json(new { notifications, unreadCount });
     }
 
     [HttpPost]
-    public async Task<IActionResult> MarkRead(Guid id)
+    public async Task<IActionResult> MarkAsRead(Guid id)
     {
-        var notification = await _context.Notifications.FindAsync(id);
-        if (notification != null && notification.UserId == GetCurrentUserId())
-        {
-            notification.ReadAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-        }
+        await _notificationService.MarkAsReadAsync(id);
+        return Ok();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> MarkAllAsRead()
+    {
+        var userId = GetCurrentUserId();
+        await _notificationService.MarkAllAsReadAsync(userId);
         return Ok();
     }
 }

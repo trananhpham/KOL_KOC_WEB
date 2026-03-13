@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -39,9 +39,38 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 ps-lg-4 gap-1">
                         <li class="nav-item">
-                            <a class="nav-link fw-medium px-3" asp-area="" asp-controller="Home" asp-action="Index">Khám phá</a>
+                            <a class="nav-link fw-medium px-3 active" aria-current="page" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-compass-fill me-1 text-primary"></i> Khám phá
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-medium px-3" href="#">
+                                <i class="bi bi-trophy-fill me-1 text-warning"></i> Bảng xếp hạng
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link fw-medium px-3 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-briefcase-fill me-1 text-info"></i> Dịch vụ <span class="badge bg-danger ms-1 fw-bold" style="font-size: 0.65rem;">HOT</span>
+                            </a>
+                            <ul class="dropdown-menu shadow-lg border-0 mt-3" style="border-radius: 1rem; min-width: 220px;">
+                                <li><a class="dropdown-item py-2 px-3 fw-medium" href="#"><i class="bi bi-camera-reels-fill me-2 text-muted"></i>Gói Review Livestream</a></li>
+                                <li><a class="dropdown-item py-2 px-3 fw-medium" href="#"><i class="bi bi-camera-fill me-2 text-muted"></i>Chụp hình PR Sản phẩm</a></li>
+                                <li><a class="dropdown-item py-2 px-3 fw-medium" href="#"><i class="bi bi-play-btn-fill me-2 text-muted"></i>Quay Video TikTok/Reels</a></li>
+                                <li><hr class="dropdown-divider opacity-50 my-2"></li>
+                                <li><a class="dropdown-item py-2 px-3 fw-bold text-primary" href="#">Xem tất cả dịch vụ <i class="bi bi-arrow-right-short"></i></a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-medium px-3" href="#">
+                                <i class="bi bi-newspaper me-1 text-secondary"></i> Blog & Case Study
+                            </a>
+                        </li>
+                        <li class="nav-item d-none d-xl-block">
+                            <a class="nav-link fw-medium px-3" href="#">
+                                <i class="bi bi-question-circle-fill me-1 text-secondary"></i> Trợ giúp
+                            </a>
                         </li>
                     </ul>
                     <ul class="navbar-nav align-items-center gap-2">
@@ -88,10 +117,18 @@
                                 </a>
                             </li>
                             
-                            @if (User.IsInRole("Admin"))
+                            @if (User.IsInRole("Admin") || User.Identity?.Name == "admin@kol.com" || Context.Session.GetString("UserName") == "Hệ thống Admin")
                             {
-                                <li class="nav-item">
-                                    <a class="btn btn-sm btn-outline-danger fw-bold rounded-pill px-3" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a>
+                                <li class="nav-item dropdown me-2">
+                                    <a class="nav-link dropdown-toggle fw-bold text-danger bg-danger bg-opacity-10 px-3 rounded-pill d-flex align-items-center" href="#" id="navbarDropdownAdmin" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: 1px solid rgba(220,53,69,0.3);">
+                                        <i class="bi bi-shield-lock-fill me-2 fs-6"></i> Hệ thống Admin
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow mt-3 admin-dropdown-menu" aria-labelledby="navbarDropdownAdmin" style="border-radius: 1rem; min-width: 240px;">
+                                        <li><a class="dropdown-item py-2 fw-medium text-dark" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-2 text-danger"></i>Tổng quan Hệ thống</a></li>
+                                        <li><a class="dropdown-item py-2 fw-medium text-dark" asp-area="Admin" asp-controller="KolManagement" asp-action="Index"><i class="bi bi-people-fill me-2 text-danger"></i>Quản lý KOLs / KOCs</a></li>
+                                        <li><hr class="dropdown-divider opacity-50"></li>
+                                        <li><a class="dropdown-item py-2 fw-medium text-dark" asp-area="Admin" asp-controller="Finances" asp-action="Index"><i class="bi bi-cash-stack me-2 text-danger"></i>Quản lý Tài chính</a></li>
+                                    </ul>
                                 </li>
                             }
 
