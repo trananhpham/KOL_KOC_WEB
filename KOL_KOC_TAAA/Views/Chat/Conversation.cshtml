@@ -1,140 +1,143 @@
 @model KOL_KOC_TAAA.Models.ChatConversation
+@using System.Security.Claims
 @{
-    ViewData["Title"] = "Hội thoại";
-    Layout = "_LayoutDashboard";
-    var otherMember = Model.ChatMembers.FirstOrDefault(m => m.UserId != (Guid)ViewBag.CurrentUserId)?.User;
-    var messages = (List<KOL_KOC_TAAA.Models.ChatMessage>)ViewBag.Messages;
+    Layout = "_LayoutLuxury";
+    ViewData["Title"] = $"Chat với {Model.ChatMembers.FirstOrDefault(m => m.UserId != Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)))?.User?.FullName} - KOL Market";
+    var currentUserId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+    var messages = ViewBag.Messages as List<KOL_KOC_TAAA.Models.ChatMessage> ?? new List<KOL_KOC_TAAA.Models.ChatMessage>();
 }
 
-<div class="chat-container d-flex flex-column" style="height: calc(100vh - 160px);">
-    <!-- Chat Header -->
-    <div class="dash-card p-3 mb-3 d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center gap-3">
-            <a asp-action="Index" class="btn btn-link text-dark p-0 d-lg-none me-2"><i class="bi bi-arrow-left fs-4"></i></a>
-            <div class="avatar-circle rounded-circle bg-indigo-subtle d-flex align-items-center justify-content-center text-primary fw-bold" style="width: 40px; height: 40px;">
-                 @if (!string.IsNullOrEmpty(otherMember?.AvatarUrl))
-                {
-                    <img src="@otherMember.AvatarUrl" class="w-100 h-100 rounded-circle" style="object-fit: cover;">
-                }
-                else
-                {
-                    @(otherMember?.FullName?[0..1] ?? "U")
-                }
+<div class="container-fluid py-4" style="height: calc(100vh - 100px);">
+    <div class="row h-100 g-0 lux-surface overflow-hidden">
+        <!-- Sidebar: Conversation List: Dẫn hướng nhanh (Hidden on mobile) -->
+        <div class="col-lg-4 col-xl-3 border-end h-100 d-none d-lg-flex flex-column">
+             <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                <h2 class="lux-h2 mb-0">Hội thoại</h2>
+                <a asp-action="Index" class="lux-btn-outline btn-sm">Tất cả</a>
             </div>
-            <div>
-                <h6 class="fw-bold mb-0">@otherMember?.FullName</h6>
-                @if (Model.Type == "booking_negotiation")
-                {
-                    <div class="small text-muted" style="font-size: 0.7rem;">Thương lượng: <strong class="text-primary">@Model.BookingRequest?.Title</strong></div>
-                }
-                else
-                {
-                    <div class="small text-success" style="font-size: 0.7rem;"><i class="bi bi-circle-fill me-1" style="font-size: 0.4rem;"></i> Đang trực tuyến</div>
-                }
-            </div>
-        </div>
-        <div class="d-flex gap-2">
-             @if (Model.Type == "booking_negotiation" && Model.BookingRequest != null)
-             {
-                 <a href="#" class="btn btn-outline-primary btn-sm rounded-pill px-3">Xem Request</a>
-             }
-             <button class="btn btn-light btn-sm rounded-circle"><i class="bi bi-three-dots-vertical"></i></button>
-        </div>
-    </div>
-
-    <!-- Message Area -->
-    <div class="flex-grow-1 overflow-auto p-3 mb-3 bg-white rounded-4 shadow-sm border" id="message-flow">
-        @foreach (var msg in messages)
-        {
-            var isMine = msg.SenderUserId == (Guid)ViewBag.CurrentUserId;
-            var isSystem = msg.MessageType == "system";
-
-            if (isSystem)
-            {
-                <div class="text-center my-4">
-                    <span class="badge rounded-pill bg-light text-muted px-4 py-2 border shadow-sm" style="font-size: 0.75rem; font-weight: 500;">
-                         @Html.Raw(msg.Content)
-                    </span>
+            <div class="flex-grow-1 overflow-auto bg-white">
+                <div class="p-5 text-center text-muted opacity-50">
+                    <p class="small">Danh sách rút gọn đang được cập nhật...</p>
                 </div>
-            }
-            else
-            {
-                <div class="d-flex @(isMine ? "justify-content-end" : "justify-content-start") mb-4">
-                    <div class="message-bubble @(isMine ? "bg-indigo text-white ms-5" : "bg-light text-dark me-5") p-3 rounded-4 shadow-sm position-relative" style="max-width: 75%;">
-                        <div class="small mb-1 @(isMine ? "text-white-50" : "text-muted")">@(isMine ? "Bạn" : msg.SenderUser?.FullName ?? "Đối tác")</div>
-                        <div style="line-height: 1.5; word-wrap: break-word;">@msg.Content</div>
-                        <div class="text-end mt-1" style="font-size: 0.6rem; opacity: 0.6;">@msg.SentAt.ToString("HH:mm")</div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="col-lg-8 col-xl-9 h-100 d-flex flex-column bg-white">
+            <!-- Header -->
+            <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-white position-relative z-1">
+                <div class="d-flex align-items-center gap-3">
+                    <a asp-action="Index" class="lux-link d-lg-none"><i class="bi bi-chevron-left fs-4"></i></a>
+                    <div class="position-relative">
+                        <img src="https://ui-avatars.com/api/?name=@(Model.ChatMembers.FirstOrDefault(m => m.UserId != currentUserId)?.User?.FullName ?? "User")&background=random" class="rounded-circle" width="45" height="45">
+                        <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle"></span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">@(Model.ChatMembers.FirstOrDefault(m => m.UserId != currentUserId)?.User?.FullName ?? "Đối tác")</h6>
+                        <span class="smaller text-muted text-uppercase ls-1">@Model.Type.Replace("_", " ")</span>
                     </div>
                 </div>
-            }
-        }
-    </div>
+                <div class="d-flex gap-2">
+                    @if (Model.Type == "booking_negotiation") {
+                        <a asp-controller="Booking" asp-action="Index" class="lux-btn-primary btn-sm px-3">CHI TIẾT ĐƠN HÀNG</a>
+                    }
+                    <button class="lux-btn-outline btn-sm"><i class="bi bi-three-dots-vertical"></i></button>
+                </div>
+            </div>
 
-    <!-- Input Area -->
-    <div class="dash-card p-2 bg-white rounded-5 shadow-lg border-0">
-        <form id="chat-form" class="d-flex gap-2 align-items-center">
-            <button type="button" class="btn btn-light rounded-circle" style="width: 42px; height: 42px;"><i class="bi bi-plus-lg"></i></button>
-            <input id="chat-input" type="text" class="form-control border-0 bg-transparent py-2 shadow-none" placeholder="Nhập tin nhắn..." autocomplete="off">
-            <button type="submit" class="btn btn-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-                <i class="bi bi-send-fill" style="margin-left: 2px;"></i>
-            </button>
-        </form>
+            <!-- Messages Window -->
+            <div id="chat-window" class="flex-grow-1 overflow-auto p-4 bg-light d-flex flex-column gap-3" style="background-image: radial-gradient(var(--lux-border) 1px, transparent 0); background-size: 20px 20px;">
+                @foreach (var msg in messages.OrderBy(m => m.SentAt))
+                {
+                    var isMine = msg.SenderUserId == currentUserId;
+                    <div class="message-wrapper d-flex @(isMine ? "justify-content-end" : "justify-content-start")" data-reveal="fade-up">
+                        <div class="message-bubble @(isMine ? "mine" : "theirs") p-3">
+                            <p class="mb-1">@msg.Content</p>
+                            <span class="smaller opacity-50 d-block text-end">@msg.SentAt.ToString("HH:mm")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-3 border-top bg-white">
+                <form id="chat-form" class="d-flex gap-3 align-items-end">
+                    <input type="hidden" id="conversationId" value="@Model.Id" />
+                    <div class="flex-grow-1 position-relative">
+                        <textarea id="message-input" rows="1" class="lux-input w-100 py-3 pe-5" placeholder="Viết phản hồi của bạn..." style="border-radius: 20px; resize: none;"></textarea>
+                        <button type="button" class="position-absolute end-0 top-50 translate-middle-y border-0 bg-transparent pe-3 text-muted"><i class="bi bi-paperclip"></i></button>
+                    </div>
+                    <button type="submit" class="lux-btn-primary rounded-circle d-flex align-items-center justify-content-center shadow-gold" style="width: 50px; height: 50px; flex-shrink: 0;"><i class="bi bi-send-fill text-white fs-5"></i></button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 
+<style>
+    .message-bubble {
+        max-width: 65%;
+        border-radius: 20px;
+        position: relative;
+        font-size: 0.95rem;
+    }
+    .message-bubble.mine {
+        background: linear-gradient(135deg, var(--lux-primary-indigo), #4f46e5);
+        color: white;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
+    }
+    .message-bubble.theirs {
+        background-color: white;
+        color: var(--lux-text-dark);
+        border: 1px solid var(--lux-border);
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    .shadow-gold { box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3); }
+    #chat-window { scroll-behavior: smooth; }
+</style>
+
 @section Scripts {
     <script>
-        const flow = document.getElementById('message-flow');
-        flow.scrollTop = flow.scrollHeight;
+        $(document).ready(function() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.scrollTop = chatWindow.scrollHeight;
 
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        const currentUserId = '@ViewBag.CurrentUserId';
+            $('#chat-form').on('submit', function(e) {
+                e.preventDefault();
+                const content = $('#message-input').val().trim();
+                const convId = $('#conversationId').val();
 
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const content = chatInput.value.trim();
-            if (!content) return;
+                if (!content) return;
 
-            const conversationId = '@Model.Id';
-            
-            try {
-                const response = await fetch('/Chat/SendMessage', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `conversationId=${conversationId}&content=${encodeURIComponent(content)}`
+                $.post('/Chat/SendMessage', { conversationId: convId, content: content }, function(data) {
+                    if (data.success) {
+                        const html = `
+                            <div class="message-wrapper d-flex justify-content-end mb-2">
+                                <div class="message-bubble mine p-3">
+                                    <p class="mb-1">${data.message.content}</p>
+                                    <span class="smaller opacity-50 d-block text-end">${data.message.sentAt}</span>
+                                </div>
+                            </div>
+                        `;
+                        $('#chat-window').append(html);
+                        $('#message-input').val('').trigger('input');
+                        chatWindow.scrollTop = chatWindow.scrollHeight;
+                    }
                 });
+            });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    appendMessage(data.message);
-                    chatInput.value = '';
-                    flow.scrollTop = flow.scrollHeight;
-                }
-            } catch (err) {
-                console.error("Lỗi gửi tin nhắn:", err);
+            // Auto-resize textarea
+            const tx = document.getElementById('message-input');
+            tx.addEventListener("input", OnInput, false);
+            function OnInput() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
             }
         });
-
-        function appendMessage(msg) {
-            const isMine = msg.senderId === currentUserId;
-            const msgHtml = `
-                <div class="d-flex ${isMine ? 'justify-content-end' : 'justify-content-start'} mb-4">
-                    <div class="message-bubble ${isMine ? 'bg-indigo text-white ms-5' : 'bg-light text-dark me-5'} p-3 rounded-4 shadow-sm position-relative" style="max-width: 75%;">
-                        <div class="small mb-1 ${isMine ? 'text-white-50' : 'text-muted'}">${isMine ? 'Bạn' : 'Đối tác'}</div>
-                        <div style="line-height: 1.5; word-wrap: break-word;">${msg.content}</div>
-                        <div class="text-end mt-1" style="font-size: 0.6rem; opacity: 0.6;">${msg.sentAt}</div>
-                    </div>
-                </div>
-            `;
-            flow.insertAdjacentHTML('beforeend', msgHtml);
-        }
     </script>
 }
-
-<style>
-    .bg-indigo { background-color: var(--lux-primary-indigo); }
-    .message-bubble { border: 1px solid rgba(0,0,0,0.03); }
-    #message-flow::-webkit-scrollbar { width: 4px; }
-    #message-flow::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-</style>
+操控
+操控
+操控

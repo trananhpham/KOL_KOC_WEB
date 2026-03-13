@@ -16,6 +16,11 @@ public class PublicKolProfileViewModel
     public bool IsVerified { get; set; }
     public decimal? MinBudget { get; set; }
 
+    // Trust Signals
+    public string? AvgResponseTime { get; set; } // e.g., "Trong 2 giờ"
+    public int CompletedCampaigns { get; set; }
+    public decimal CompletionRate { get; set; } // e.g., 98.5
+
     // Social stats for card display
     public string? TopPlatform { get; set; }
     public long? TotalFollowers { get; set; }

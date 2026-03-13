@@ -283,7 +283,10 @@ public static class MockIdolService
                 Platforms      = new() { "YouTube", "TikTok", "Instagram", "Facebook" },
                 Category       = "BeautyFashion",
                 ContactEmail   = "vohalinhmedia@gmail.com",
-                ContactPhone   = "0912 345 678"
+                ContactPhone   = "0912 345 678",
+                AvgResponseTime = "Trong 1 giờ",
+                CompletedCampaigns = 156,
+                CompletionRate = 99.2m
             },
             new()
             {
@@ -299,7 +302,10 @@ public static class MockIdolService
                 Platforms      = new() { "YouTube", "Instagram", "TikTok" },
                 Category       = "BeautyFashion",
                 ContactEmail   = "chloenguyen.collab@gmail.com",
-                ContactPhone   = "0903 111 222"
+                ContactPhone   = "0903 111 222",
+                AvgResponseTime = "Trong 3 giờ",
+                CompletedCampaigns = 89,
+                CompletionRate = 98.5m
             },
             new()
             {
@@ -333,7 +339,10 @@ public static class MockIdolService
                 Platforms      = new() { "YouTube", "Facebook", "TikTok" },
                 Category       = "FoodBeverage",
                 ContactEmail   = "ninhtito.media@gmail.com",
-                ContactPhone   = "0934 567 890"
+                ContactPhone   = "0934 567 890",
+                AvgResponseTime = "Trong 2 giờ",
+                CompletedCampaigns = 210,
+                CompletionRate = 100
             },
             new()
             {
@@ -533,7 +542,10 @@ public static class MockIdolService
                 Platforms      = new() { "YouTube", "Facebook", "TikTok" },
                 Category       = "Gaming",
                 ContactEmail   = "domixi.management@gmail.com",
-                ContactPhone   = "0919 246 810"
+                ContactPhone   = "0919 246 810",
+                AvgResponseTime = "Theo lịch trình",
+                CompletedCampaigns = 340,
+                CompletionRate = 97.8m
             },
             new()
             {

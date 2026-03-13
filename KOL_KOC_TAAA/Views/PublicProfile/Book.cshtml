@@ -102,7 +102,7 @@
                                                                     <optgroup label="@rc.Title">
                                                                         @foreach (var item in rc.RateCardItems)
                                                                         {
-                                                                            <option value="@item.ServiceName">@item.ServiceName (@item.Price?.ToString("N0") VND)</option>
+                                                                            <option value="@item.ServiceType">@item.ServiceType (@item.UnitPrice.ToString("N0") VND)</option>
                                                                         }
                                                                     </optgroup>
                                                                 }

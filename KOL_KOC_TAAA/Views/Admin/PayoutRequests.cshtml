@@ -40,7 +40,7 @@
                             <td>
                                 <div class="fw-bold">@item.Amount.ToString("N0") <small class="text-muted">@item.Currency</small></div>
                             </td>
-                            <td class="small text-muted" style="max-width: 250px;">@item.BankName</td>
+                            <td class="small text-muted" style="max-width: 250px;">@item.BankInfoJson</td>
                             <td>
                                 @{
                                     var badgeClass = item.Status switch {

@@ -22,7 +22,7 @@ public class AdminController : Controller
         // Platform Overview
         ViewBag.UserCount = await _context.Users.CountAsync();
         ViewBag.KolCount = await _context.KolProfiles.CountAsync();
-        ViewBag.TotalRevenue = await _context.Bookings.Where(b => b.Status == "closed").SumAsync(b => b.PlatformFee ?? 0);
+        ViewBag.TotalRevenue = await _context.Bookings.Where(b => b.Status == "closed").SumAsync(b => b.PlatformFee);
         ViewBag.PendingPayouts = await _context.PayoutRequests.Where(p => p.Status == "pending").CountAsync();
 
         return View();

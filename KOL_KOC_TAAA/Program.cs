@@ -18,6 +18,7 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IFinanceService, FinanceService>();
 builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IDiscoveryService, DiscoveryService>();
 builder.Services.AddHttpClient<IGroqService, GroqService>();
 
 // Configure MoMo Options

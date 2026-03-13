@@ -1,6 +1,7 @@
 using KOL_KOC_TAAA.Data;
 using KOL_KOC_TAAA.Models;
 using KOL_KOC_TAAA.ViewModels;
+using KOL_KOC_TAAA.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,20 @@ public class AuthController : Controller
         {
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return LocalRedirect(returnUrl);
+
+            // Redirect based on role
+            if (result.User!.Roles.Any(r => r.Code == "Admin"))
+            {
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+            }
+            else if (result.User!.Roles.Any(r => r.Code == "KOL"))
+            {
+                return RedirectToAction("ManageBookings", "Booking");
+            }
+            else if (result.User!.Roles.Any(r => r.Code == "CUSTOMER"))
+            {
+                return RedirectToAction("MyRequests", "Booking");
+            }
 
             return RedirectToAction("Index", "Home");
         }

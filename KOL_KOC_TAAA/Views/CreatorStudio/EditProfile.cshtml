@@ -1,0 +1,85 @@
+@model KOL_KOC_TAAA.ViewModels.KolProfileEditViewModel
+@{
+    Layout = "_LayoutLuxury";
+    ViewData["Title"] = "Chỉnh sửa hồ sơ - Creator Studio";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="mb-5" data-reveal="fade-up">
+                <a asp-action="Index" class="lux-link small mb-3 d-inline-block"><i class="bi bi-arrow-left me-1"></i> Quay lại Dashboard</a>
+                <h1 class="lux-h1">Chỉnh sửa <span class="text-gradient-gold">Hồ sơ</span></h1>
+                <p class="text-muted">Cập nhật thông tin cá nhân để tăng khả năng kết nối với các thương hiệu.</p>
+            </div>
+
+            <form asp-action="EditProfile" method="post" class="lux-surface p-5" data-reveal="fade-up">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+
+                <div class="row g-4">
+                    <!-- Basic Info Group -->
+                    <div class="col-md-6">
+                        <label asp-for="InfluencerType" class="form-label lux-cap mb-2"></label>
+                        <select asp-for="InfluencerType" class="lux-input w-100">
+                            <option value="Nano">Nano Influencer</option>
+                            <option value="Micro">Micro Influencer</option>
+                            <option value="Macro">Macro Influencer</option>
+                            <option value="Mega">Mega Influencer / Celeb</option>
+                        </select>
+                        <span asp-validation-for="InfluencerType" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="MinBudget" class="form-label lux-cap mb-2"></label>
+                        <div class="input-group">
+                            <input asp-for="MinBudget" class="lux-input w-100" placeholder="e.g. 5,000,000">
+                        </div>
+                        <span asp-validation-for="MinBudget" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Bio" class="form-label lux-cap mb-2"></label>
+                        <textarea asp-for="Bio" class="lux-input w-100" rows="5" placeholder="Chia sẻ về phong cách, thế mạnh và những dự án bạn đã thực hiện..."></textarea>
+                        <span asp-validation-for="Bio" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="LocationCity" class="form-label lux-cap mb-2"></label>
+                        <input asp-for="LocationCity" class="lux-input w-100" placeholder="e.g. Hà Nội">
+                        <span asp-validation-for="LocationCity" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="LocationCountry" class="form-label lux-cap mb-2"></label>
+                        <input asp-for="LocationCountry" class="lux-input w-100" value="Việt Nam">
+                        <span asp-validation-for="LocationCountry" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Gender" class="form-label lux-cap mb-2"></label>
+                        <select asp-for="Gender" class="lux-input w-100">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                            <option value="Khác">Khác / Secret</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Dob" class="form-label lux-cap mb-2"></label>
+                        <input asp-for="Dob" type="date" class="lux-input w-100">
+                    </div>
+
+                    <div class="col-12 pt-4 border-top">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="text-muted small">
+                                <i class="bi bi-info-circle me-1"></i> Hồ sơ của bạn sẽ được kiểm duyệt trước khi hiển thị công khai.
+                            </div>
+                            <button type="submit" class="lux-btn-primary px-5">LƯU THAY ĐỔI</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

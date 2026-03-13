@@ -19,23 +19,18 @@ namespace KOL_KOC_TAAA.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Get featured KOLs from the real database, including their social accounts
             var profiles = await _context.KolProfiles
                 .Include(p => p.User)
                 .Include(p => p.KolSocialAccounts)
                 .Where(p => p.User.Status == "active")
-                .OrderByDescending(p => p.IsVerified)
-                .ThenByDescending(p => p.KolSocialAccounts.Sum(s => s.Followers ?? 0))
-                .Take(12)
+                .Take(24)
                 .ToListAsync();
 
             var mockIdols = MockIdolService.GetMockIdols();
 
-            var featuredKols = profiles.Select(p =>
+            var allKols = profiles.Select(p =>
             {
-                var topAccount = p.KolSocialAccounts
-                    .OrderByDescending(s => s.Followers ?? 0)
-                    .FirstOrDefault();
+                var topAccount = p.KolSocialAccounts.OrderByDescending(s => s.Followers ?? 0).FirstOrDefault();
                 var mockMatch = mockIdols.FirstOrDefault(m => m.UserId == p.UserId);
 
                 return new PublicKolProfileViewModel
@@ -46,7 +41,6 @@ namespace KOL_KOC_TAAA.Controllers
                     Category = mockMatch?.Category ?? "all",
                     InfluencerType = p.InfluencerType,
                     Bio = p.Bio,
-                    LocationCity = p.LocationCity,
                     RatingAvg = p.RatingAvg,
                     RatingCount = p.RatingCount,
                     IsVerified = p.IsVerified,
@@ -57,7 +51,39 @@ namespace KOL_KOC_TAAA.Controllers
                 };
             }).ToList();
 
-            return View(featuredKols);
+            var viewModel = new HomeIndexViewModel
+            {
+                FeaturedKols = allKols.Where(k => k.IsVerified).OrderByDescending(k => k.TotalFollowers).Take(8).ToList(),
+                TrendingKols = allKols.OrderBy(x => Guid.NewGuid()).Take(10).ToList(),
+                RecommendedKols = allKols.Take(12).ToList(),
+                Stats = new PlatformStatsViewModel
+                {
+                    ActiveKols = await _context.KolProfiles.CountAsync() + 150,
+                    CompletedCampaigns = 1240,
+                    TotalRevenue = 8500000000,
+                    TotalReach = "45M+"
+                },
+                PartnerBrands = new List<BrandLogoViewModel>
+                {
+                    new BrandLogoViewModel { Name = "Samsung", LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg" },
+                    new BrandLogoViewModel { Name = "Unilever", LogoUrl = "https://upload.wikimedia.org/wikipedia/en/b/b1/Unilever.svg" },
+                    new BrandLogoViewModel { Name = "Shopee", LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg" },
+                    new BrandLogoViewModel { Name = "Lazada", LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/d/d1/Lazada_logo.svg" },
+                    new BrandLogoViewModel { Name = "Grab", LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/0/03/Grab_logo.svg" }
+                },
+                CaseStudies = new List<CaseStudyViewModel>
+                {
+                    new CaseStudyViewModel { BrandName = "Samsung Galaxy S24 launch", CampaignGoal = "Product Launch & Awareness", ResultHighlight = "+230% Engagement", Description = "Kết hợp với 50 KOL Tech & Lifestyle tạo ra làn sóng viral trên TikTok." },
+                    new CaseStudyViewModel { BrandName = "Shopee Super Sale", CampaignGoal = "Conversion & Sales", ResultHighlight = "12M+ Impressions", Description = "Chiến dịch KOC quy mô lớn thúc đẩy lượt tải app và mua hàng trực tiếp." }
+                },
+                Testimonials = new List<TestimonialViewModel>
+                {
+                    new TestimonialViewModel { Name = "Nguyễn Văn A", Role = "Marketing Manager @ Samsung", Content = "Nền tảng giúp chúng tôi tiết kiệm 70% thời gian tìm kiếm và kết nối với KOL phù hợp." },
+                    new TestimonialViewModel { Name = "Lê Thị B", Role = "Founder @ Beauty Brand", Content = "Quy trình thanh toán Escrow và quản lý sản phẩm rất minh bạch và an toàn." }
+                }
+            };
+
+            return View(viewModel);
         }
 
         public async Task<IActionResult> Search(string? query, string? type, string? city, string? category)

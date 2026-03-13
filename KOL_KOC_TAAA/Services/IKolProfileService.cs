@@ -12,4 +12,10 @@ public interface IKolProfileService
     Task<bool> RemoveSocialAccountAsync(Guid userId, Guid socialId);
     Task<List<RateCard>> GetRateCardsAsync(Guid userId);
     Task<bool> CreateRateCardAsync(Guid userId, RateCardViewModel model);
+    Task<StudioDashboardViewModel> GetStudioDashboardAsync(Guid userId);
+    
+    // Portfolio
+    Task<List<KolPortfolio>> GetPortfoliosAsync(Guid userId);
+    Task<bool> AddPortfolioAsync(Guid userId, PortfolioItemViewModel model);
+    Task<bool> DeletePortfolioAsync(Guid userId, Guid portfolioId);
 }

@@ -1,153 +1,162 @@
 @model KOL_KOC_TAAA.Models.UserWallet
 @{
-    ViewData["Title"] = "Ví của tôi";
-    Layout = "_LayoutDashboard";
-    var ledger = (List<KOL_KOC_TAAA.Models.WalletLedger>)ViewBag.Ledger;
+    Layout = "_LayoutLuxury";
+    ViewData["Title"] = "Ví điện tử - KOL Market";
+    var ledger = ViewBag.Ledger as List<KOL_KOC_TAAA.Models.WalletLedger> ?? new List<KOL_KOC_TAAA.Models.WalletLedger>();
 }
 
-<div class="mb-4">
-    <h2 class="h4 fw-bold mb-1">Tài chính & Ví tiền</h2>
-    <p class="text-muted small">Quản lý thu nhập, số dư và lịch sử giao dịch của bạn.</p>
-</div>
+<div class="container py-5">
+    <div class="mb-5 d-flex justify-content-between align-items-end" data-reveal="fade-up">
+        <div>
+            <h1 class="lux-h1 mb-1">Quản lý <span class="text-gradient-gold">Tài chính</span></h1>
+            <p class="text-muted">Theo dõi số dư, thu nhập và thực hiện các giao dịch nạp/rút tiền.</p>
+        </div>
+        <div class="d-flex gap-2">
+             <button class="lux-btn-primary bg-gold border-0 text-dark px-4" data-bs-toggle="modal" data-bs-target="#topupModal"><i class="bi bi-plus-circle me-2"></i>NẠP TIỀN</button>
+             <button class="lux-btn-outline px-4" data-bs-toggle="modal" data-bs-target="#payoutModal"><i class="bi bi-box-arrow-up-right me-2"></i>RÚT TIỀN</button>
+        </div>
+    </div>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success border-0 mb-4 rounded-4">@TempData["SuccessMessage"]</div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger border-0 mb-4 rounded-4">@TempData["ErrorMessage"]</div>
-}
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-4 border-0 shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-<div class="row g-4 mb-5">
-    <!-- Balance Card -->
-    <div class="col-md-6">
-        <div class="dash-card p-5 bg-dark text-white shadow-xl position-relative overflow-hidden" style="border-radius: 32px;">
-            <div class="position-relative z-1">
-                <div class="lux-cap text-white-50 mb-3" style="font-size: 0.7rem;">Số dư khả dụng</div>
-                <div class="display-5 fw-bold mb-4">@Model.Balance.ToString("N0") <small class="h6 fw-normal text-white-50">@Model.Currency</small></div>
-                
-                <div class="d-flex gap-4">
-                    <div>
-                        <div class="small text-white-50 mb-1">Đang tạm giữ</div>
-                        <div class="fw-bold">@Model.LockedBalance.ToString("N0") <small class="text-white-50">@Model.Currency</small></div>
-                    </div>
-                    <div class="border-start border-white border-opacity-10 ps-4">
-                        <div class="small text-white-50 mb-1">Tổng thu nhập</div>
-                        <div class="fw-bold">@((Model.Balance + Model.LockedBalance).ToString("N0")) <small class="text-white-50">@Model.Currency</small></div>
-                    </div>
+    <div class="row g-4 mb-5">
+        <!-- Balance Cards -->
+        <div class="col-lg-4" data-reveal="fade-up">
+            <div class="lux-surface p-5 bg-indigo text-white h-100 position-relative overflow-hidden shadow-indigo">
+                <div class="position-relative z-1">
+                    <span class="lux-cap small opacity-75 mb-2 d-block text-uppercase ls-1">Số dư khả dụng</span>
+                    <h2 class="display-5 fw-bold mb-0">@Model.Balance.ToString("N0") <small class="fs-6 opacity-50 fw-normal">VND</small></h2>
+                </div>
+                <!-- Decoration -->
+                <i class="bi bi-wallet2 position-absolute top-50 end-0 translate-middle-y opacity-10" style="font-size: 8rem; margin-right: -2rem;"></i>
+            </div>
+        </div>
+
+        <div class="col-lg-4" data-reveal="fade-up" data-delay="100">
+            <div class="lux-surface p-5 h-100 border-start border-gold border-4">
+                <span class="lux-cap small text-muted mb-2 d-block text-uppercase ls-1">Đang chờ xử lý</span>
+                <h2 class="display-5 fw-bold mb-2">@Model.LockedBalance.ToString("N0") <small class="fs-6 text-muted fw-normal">VND</small></h2>
+                <p class="smaller text-muted mb-0">Tiền tạm giữ trong quá trình thực hiện dự án.</p>
+            </div>
+        </div>
+
+        <div class="col-lg-4" data-reveal="fade-up" data-delay="200">
+            <div class="lux-surface p-5 h-100">
+                <span class="lux-cap small text-muted mb-2 d-block text-uppercase ls-1">Tổng tài sản</span>
+                <h2 class="display-5 fw-bold mb-2 text-gradient-gold">@((Model.Balance + Model.LockedBalance).ToString("N0"))</h2>
+                <p class="smaller text-muted mb-0">Bao gồm cả số dư khả dụng và tiền đang chờ giải ngân.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="lux-surface p-0 overflow-hidden" data-reveal="fade-up">
+        <div class="p-4 border-bottom d-flex align-items-center justify-content-between bg-white">
+            <h5 class="lux-h2 mb-0">Lịch sử giao dịch</h5>
+            <div class="d-flex gap-2">
+                <div class="input-group input-group-sm" style="max-width: 250px;">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control border-start-0" placeholder="Tìm giao dịch...">
                 </div>
             </div>
-            <!-- Decorative circle -->
-            <div class="position-absolute top-0 end-0 p-5 mt-n5 me-n5 bg-white opacity-10 rounded-circle" style="width: 200px; height: 200px;"></div>
         </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="col-md-6">
-        <div class="dash-card p-5 h-100 d-flex flex-column justify-content-center" style="border-radius: 32px;">
-            <h5 class="fw-bold mb-4">Thao tác tài chính</h5>
-            <div class="d-grid gap-3">
-                <button class="btn btn-dark py-3 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#payoutModal">
-                    <i class="bi bi-wallet2 me-2"></i> Rút tiền về ngân hàng
-                </button>
-                <button class="btn btn-outline-dark py-3 rounded-pill small" disabled>
-                    <i class="bi bi-plus-circle me-2"></i> Nạp tiền vào ví (Sắp ra mắt)
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Transaction History -->
-<div class="dash-card p-0 overflow-hidden shadow-sm border-0 mb-5">
-    <div class="p-4 bg-white border-bottom d-flex justify-content-between align-items-center">
-        <h5 class="fw-bold mb-0">Lịch sử giao dịch</h5>
-        <button class="btn btn-link text-muted p-0 small text-decoration-none">Xem tất cả <i class="bi bi-chevron-right ms-1"></i></button>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="bg-light">
-                <tr class="lux-cap text-muted" style="font-size: 0.65rem;">
-                    <th class="ps-4 py-3">Loại giao dịch</th>
-                    <th class="py-3">Mô tả</th>
-                    <th class="py-3">Số tiền</th>
-                    <th class="py-3">Ngày thực hiện</th>
-                    <th class="py-3 text-end pe-4">Trạng thái</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (ledger != null && ledger.Any())
-                {
-                    @foreach (var entry in ledger)
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted smaller text-uppercase ls-1">
+                    <tr>
+                        <th class="ps-4 py-3">Ngày giao dịch</th>
+                        <th>Nội dung chi tiết</th>
+                        <th>Phân loại</th>
+                        <th class="text-end pe-4">Số tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ledger.Any())
+                    {
+                        foreach (var item in ledger)
+                        {
+                            <tr>
+                                <td class="ps-4 py-3 small">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <div class="fw-medium">@item.Description</div>
+                                    <div class="smaller text-muted">ID: @item.Id.ToString()[..8].ToUpper()</div>
+                                </td>
+                                <td>
+                                    @if(item.TransactionType == "income"){
+                                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 smaller fw-bold"><i class="bi bi-arrow-down-left me-1"></i> THU NHẬP</span>
+                                    }else if(item.TransactionType == "payout"){
+                                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-2 smaller fw-bold"><i class="bi bi-arrow-up-right me-1"></i> RÚT TIỀN</span>
+                                    }else{
+                                        <span class="badge bg-light text-muted rounded-pill px-3 py-2 smaller fw-bold">KHÁC</span>
+                                    }
+                                </td>
+                                <td class="text-end pe-4 fw-bold fs-5 @(item.Amount > 0 ? "text-success" : "text-danger")">
+                                    @(item.Amount > 0 ? "+" : "")@item.Amount.ToString("N0") <small class="small fw-normal">VND</small>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td class="ps-4">
-                                <span class="d-flex align-items-center gap-2">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: @(entry.TransactionType == "income" ? "#ecfdf5" : "#fff1f2"); color: @(entry.TransactionType == "income" ? "#10b981" : "#f43f5e");">
-                                        <i class="bi bi-@(entry.TransactionType == "income" ? "arrow-down-left" : "arrow-up-right")" style="font-size: 0.8rem;"></i>
-                                    </div>
-                                    <span class="small fw-bold">@(entry.TransactionType == "income" ? "Tiền về" : "Rút tiền")</span>
-                                </span>
-                            </td>
-                            <td class="small text-muted">@entry.Description</td>
-                            <td>
-                                <span class="fw-bold @(entry.TransactionType == "income" ? "text-success" : "text-danger")">
-                                    @(entry.TransactionType == "income" ? "+" : "-")@Math.Abs(entry.Amount).ToString("N0")
-                                </span>
-                            </td>
-                            <td class="small text-muted">@entry.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                            <td class="text-end pe-4">
-                                <span class="badge rounded-pill bg-success-subtle text-success px-3 py-1" style="font-size: 0.6rem;">Hoàn tất</span>
+                            <td colspan="4" class="text-center py-5">
+                                <i class="bi bi-inboxes display-4 opacity-10 d-block mb-2"></i>
+                                <p class="text-muted">Chưa có giao dịch nào được ghi nhận.</p>
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <p class="text-muted small italic">Chưa có giao dịch nào được ghi nhận.</p>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<!-- Payout Modal -->
+<!-- Modal Payout -->
 <div class="modal fade" id="payoutModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-0 pb-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold">Yêu cầu rút tiền</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 24px;">
+            <div class="p-5">
+                <h5 class="lux-h2 mb-4">Lệnh rút tiền</h5>
+                <form asp-action="RequestPayout" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-4">
+                        <label class="lux-cap small mb-2 d-block">Số tiền muốn rút (VNĐ)</label>
+                        <input type="number" name="amount" class="lux-input w-100 fs-4 fw-bold" placeholder="Tối thiểu 50,000" min="50000" required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="lux-cap small mb-2 d-block">Thông tin nhận tiền</label>
+                        <textarea name="bankInfo" class="lux-input w-100" rows="3" placeholder="Số tài khoản, Ngân hàng, Tên chủ thẻ..." required></textarea>
+                    </div>
+                    <div class="bg-light p-3 rounded-3 mb-4 smaller text-muted">
+                        <i class="bi bi-info-circle me-1"></i> Yêu cầu rút tiền sẽ được xử lý trong vòng 24 - 48 giờ làm việc.
+                    </div>
+                    <button type="submit" class="lux-btn-primary w-100 py-3">GỬI YÊU CẦU RÚT TIỀN</button>
+                </form>
             </div>
-            <form asp-action="RequestPayout" method="post">
-                @Html.AntiForgeryToken()
-                <div class="modal-body p-4">
-                    <p class="small text-muted mb-4 text-center p-3 bg-light rounded-4">Tiền sẽ được chuyển vào tài khoản ngân hàng của bạn trong vòng 48h làm việc.</p>
-                    
-                    <div class="mb-3">
-                        <label class="lux-cap mb-2" style="font-size: 0.7rem;">Số tiền cần rút (VND)</label>
-                        <input name="amount" type="number" class="lux-input w-100" placeholder="VD: 500000" min="100000" step="1000" required />
-                    </div>
-                    
-                    <div class="mb-0">
-                        <label class="lux-cap mb-2" style="font-size: 0.7rem;">Thông tin tài khoản ngân hàng (Số TK, Ngân hàng, Tên)</label>
-                        <textarea name="bankInfo" class="lux-input w-100" rows="3" placeholder="VD: 12345678, Vietcombank, NGUYEN VAN A" required></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="submit" class="lux-btn-primary w-100 py-3 mt-2">Xác nhận rút tiền <i class="bi bi-check-lg ms-2"></i></button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
 
 <style>
-    .shadow-xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-    .display-5 { font-size: 3rem; letter-spacing: -1px; }
+    .bg-success-subtle { background-color: rgba(25, 135, 84, 0.1) !important; }
+    .bg-danger-subtle { background-color: rgba(220, 53, 69, 0.1) !important; }
+    .shadow-indigo { box-shadow: 0 10px 30px rgba(79, 70, 229, 0.15); }
+    .smaller { font-size: 0.75rem; }
+    .ls-1 { letter-spacing: 1px; }
 </style>
+操控
+操控
+操控

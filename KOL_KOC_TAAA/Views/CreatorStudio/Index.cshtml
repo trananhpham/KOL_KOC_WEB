@@ -1,0 +1,152 @@
+@model KOL_KOC_TAAA.ViewModels.StudioDashboardViewModel
+@{
+    Layout = "_LayoutLuxury";
+    ViewData["Title"] = "Creator Studio - Dashboard";
+}
+
+<div class="container py-5">
+    <!-- Header: Welcome & Quick Actions -->
+    <div class="d-flex align-items-end justify-content-between mb-5" data-reveal="fade-up">
+        <div>
+            <span class="lux-cap mb-2 d-block">Chào mừng trở lại</span>
+            <h1 class="lux-h1 mb-0">Chào, <span class="text-gradient-gold">@Model.FullName</span></h1>
+            <p class="text-muted mt-2 mb-0">Hôm nay bạn có @Model.PendingRequestsCount yêu cầu mới cần xử lý.</p>
+        </div>
+        <div class="d-flex gap-3">
+            <a asp-action="EditProfile" class="lux-btn-outline"><i class="bi bi-pencil-square me-2"></i> Chỉnh sửa hồ sơ</a>
+            <a href="#" class="lux-btn-primary"><i class="bi bi-plus-lg me-2"></i> Tạo nội dung</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Stats Column -->
+        <div class="col-lg-8">
+            <!-- Grid 1: Core Stats -->
+            <div class="row g-4 mb-4" data-reveal="fade-up">
+                <div class="col-md-4">
+                    <div class="lux-surface p-4 text-center">
+                        <div class="lux-stat-number">@Model.TotalFollowers.ToString("N0")</div>
+                        <div class="lux-stat-label">Tổng Followers</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="lux-surface p-4 text-center">
+                        <div class="lux-stat-number">@Model.RatingAvg.ToString("F1")</div>
+                        <div class="lux-stat-label">Đánh giá TB</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="lux-surface p-4 text-center">
+                        <div class="lux-stat-number">@Model.WalletBalance.ToString("N0")</div>
+                        <div class="lux-stat-label">Số dư (VND)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Completeness Card -->
+            <div class="lux-surface p-4 mb-4" data-reveal="fade-up">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="lux-h2 mb-0">Độ hoàn thiện hồ sơ</h5>
+                    <span class="badge @(Model.ProfileCompleteness > 80 ? "bg-success" : "bg-warning")">@Model.ProfileCompleteness%</span>
+                </div>
+                <div class="progress mb-4" style="height: 8px; border-radius: 4px; background: var(--lux-bg-stone);">
+                    <div class="progress-bar" role="progressbar" style="width: @Model.ProfileCompleteness%; background: var(--lux-accent-gold);" aria-valuenow="@Model.ProfileCompleteness" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <p class="small text-muted mb-0"><i class="bi @(Model.ProfileCompleteness >= 20 ? "bi-check-circle-fill text-success" : "bi-circle text-muted") me-2"></i> Đã tải ảnh đại diện</p>
+                        <p class="small text-muted mb-0"><i class="bi @(Model.ProfileCompleteness >= 40 ? "bi-check-circle-fill text-success" : "bi-circle text-muted") me-2"></i> Đã viết Bio chi tiết</p>
+                        <p class="small text-muted mb-0"><i class="bi @(Model.ProfileCompleteness >= 60 ? "bi-check-circle-fill text-success" : "bi-circle text-muted") me-2"></i> Liên kết mạng xã hội</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p class="small text-muted mb-0"><i class="bi @(Model.ProfileCompleteness >= 80 ? "bi-check-circle-fill text-success" : "bi-circle text-muted") me-2"></i> Đã có Portfolio</p>
+                        <p class="small text-muted mb-0"><i class="bi @(Model.ProfileCompleteness >= 100 ? "bi-check-circle-fill text-success" : "bi-circle text-muted") me-2"></i> Đã thiết lập bảng giá</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Requests Placeholder -->
+            <div class="lux-surface p-4" data-reveal="fade-up">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <h5 class="lux-h2 mb-0">Yêu cầu hợp tác gần đây</h5>
+                    <a href="#" class="lux-link small">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+                </div>
+                @if (Model.PendingRequestsCount > 0)
+                {
+                    <div class="alert alert-light border-0 py-3" style="background: var(--lux-bg-stone);">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-envelope-exclamation-fill text-gold fs-4 me-3"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Dự án "Beauty Summer 2024"</h6>
+                                <p class="small text-muted mb-0">Thương hiệu: L'Oreal Paris • Ngân sách: 15.000.000 VND</p>
+                            </div>
+                            <button class="btn btn-sm btn-dark ms-auto">Chi tiết</button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center py-4 mb-0">Chưa có yêu cầu mới nào.</p>
+                }
+            </div>
+        </div>
+
+        <!-- Right Sidebar Column -->
+        <div class="col-lg-4">
+            <!-- Sidebar Bento Grid -->
+            <div class="d-flex flex-column gap-4">
+                <!-- Upcoming Meetings -->
+                <div class="lux-surface p-4" data-reveal="fade-left">
+                    <h5 class="lux-h2 mb-3">Lịch hẹn sắp tới</h5>
+                    @if (Model.UpcomingMeetingsCount > 0)
+                    {
+                        <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                            <div class="text-center rounded" style="background: var(--lux-bg-stone); padding: 5px 10px; min-width: 50px;">
+                                <div class="fw-bold text-gold">14</div>
+                                <div class="small text-muted" style="font-size: 10px;">THG 3</div>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Họp Briefing qua Zoom</h6>
+                                <p class="small text-muted mb-0">14:00 - 15:00</p>
+                            </div>
+                        </div>
+                    }
+                    <button class="btn btn-link w-100 text-decoration-none text-muted small p-0">Quản lý lịch rảnh <i class="bi bi-calendar3 ms-2"></i></button>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="lux-surface p-4" data-reveal="fade-left">
+                    <h5 class="lux-h2 mb-4">Hoạt động</h5>
+                    <div class="activity-timeline">
+                        @foreach (var activity in Model.RecentActivities)
+                        {
+                            <div class="activity-item d-flex gap-3 mb-4 last-child-mb-0">
+                                <div class="activity-icon">
+                                    <i class="bi bi-lightning-fill text-gold opacity-50"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold small">@activity.Title</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.8rem;">@activity.Description</p>
+                                    <span class="text-muted" style="font-size: 0.7rem;">@activity.CreatedAt.ToString("HH:mm, dd/MM")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Tip of the Day -->
+                <div class="bg-indigo text-white p-4 rounded-4" data-reveal="fade-left">
+                    <i class="bi bi-lightbulb text-gold fs-3 d-block mb-3"></i>
+                    <h6 class="fw-bold mb-2">Mẹo tăng thu nhập</h6>
+                    <p class="small opacity-75 mb-0">Cập nhật Portfolio thường xuyên giúp tăng cơ hội được các brand cao cấp chú ý lên 45%.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .activity-timeline { position: relative; }
+    .last-child-mb-0:last-child { margin-bottom: 0 !important; }
+    .backdrop-blur { backdrop-filter: blur(10px); }
+</style>

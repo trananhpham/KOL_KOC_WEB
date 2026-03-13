@@ -96,8 +96,8 @@ public class ChatService : IChatService
         };
 
         _context.ChatConversations.Add(conversation);
-        _context.ChatMembers.Add(new ChatMember { ConversationId = conversation.Id, UserId = userA, JoinedAt = DateTime.UtcNow });
-        _context.ChatMembers.Add(new ChatMember { ConversationId = conversation.Id, UserId = userB, JoinedAt = DateTime.UtcNow });
+        _context.ChatMembers.Add(new ChatMember { ConversationId = conversation.Id, UserId = userA });
+        _context.ChatMembers.Add(new ChatMember { ConversationId = conversation.Id, UserId = userB });
 
         await _context.SaveChangesAsync();
         return conversation;

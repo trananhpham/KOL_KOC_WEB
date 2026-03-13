@@ -1,4 +1,5 @@
 @model KOL_KOC_TAAA.Models.Booking
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Quản lý Sản phẩm";
     Layout = "_LayoutDashboard";
@@ -52,10 +53,10 @@
                                 <div class="list-group-item px-0 py-3 border-0 border-bottom">
                                     <div class="d-flex justify-content-between">
                                         <div>
-                                            <a href="@dev.ContentUrl" target="_blank" class="fw-bold text-decoration-none text-indigo small">
+                                            <a href="@dev.Title" target="_blank" class="fw-bold text-decoration-none text-indigo small">
                                                 <i class="bi bi-link-45deg"></i> Link sản phẩm/bài viết
                                             </a>
-                                            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">@dev.Notes</p>
+                                            <p class="text-muted mb-0 mt-1" style="font-size: 0.75rem;">@dev.Description</p>
                                         </div>
                                         <div class="text-end">
                                             <span class="badge rounded-pill bg-success-subtle text-success small">@dev.Status.ToUpper()</span>

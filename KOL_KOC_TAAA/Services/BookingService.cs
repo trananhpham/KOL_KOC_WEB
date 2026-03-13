@@ -98,8 +98,8 @@ public class BookingService : IBookingService
             _context.ChatConversations.Add(chat);
 
             // Add members to chat
-            _context.ChatMembers.Add(new ChatMember { ConversationId = chat.Id, UserId = customerId, JoinedAt = DateTime.UtcNow });
-            _context.ChatMembers.Add(new ChatMember { ConversationId = chat.Id, UserId = kolId, JoinedAt = DateTime.UtcNow });
+            _context.ChatMembers.Add(new ChatMember { ConversationId = chat.Id, UserId = customerId });
+            _context.ChatMembers.Add(new ChatMember { ConversationId = chat.Id, UserId = kolId });
 
             // Initial System Message
             _context.ChatMessages.Add(new ChatMessage
@@ -180,10 +180,10 @@ public class BookingService : IBookingService
             {
                 Id = Guid.NewGuid(),
                 BookingId = bookingId,
-                ServiceName = item.ServiceType,
+                ServiceType = item.ServiceType,
                 UnitPrice = item.ExpectedUnitPrice ?? 0,
                 Quantity = item.Quantity,
-                Subtotal = (item.ExpectedUnitPrice ?? 0) * item.Quantity
+                LineTotal = (item.ExpectedUnitPrice ?? 0) * item.Quantity
             });
         }
 

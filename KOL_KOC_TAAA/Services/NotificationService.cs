@@ -25,7 +25,7 @@ public class NotificationService : INotificationService
     public async Task<int> GetUnreadCountAsync(Guid userId)
     {
         return await _context.Notifications
-            .CountAsync(n => n.UserId == userId && !n.IsRead);
+            .CountAsync(n => n.UserId == userId && n.ReadAt == null);
     }
 
     public async Task<bool> MarkAsReadAsync(Guid notificationId)
@@ -33,7 +33,7 @@ public class NotificationService : INotificationService
         var notification = await _context.Notifications.FindAsync(notificationId);
         if (notification == null) return false;
 
-        notification.IsRead = true;
+        notification.ReadAt = DateTime.UtcNow;
         await _context.SaveChangesAsync();
         return true;
     }
@@ -41,10 +41,10 @@ public class NotificationService : INotificationService
     public async Task<bool> MarkAllAsReadAsync(Guid userId)
     {
         var unread = await _context.Notifications
-            .Where(n => n.UserId == userId && !n.IsRead)
+            .Where(n => n.UserId == userId && n.ReadAt == null)
             .ToListAsync();
 
-        foreach (var n in unread) n.IsRead = true;
+        foreach (var n in unread) n.ReadAt = DateTime.UtcNow;
         
         await _context.SaveChangesAsync();
         return true;
@@ -59,7 +59,6 @@ public class NotificationService : INotificationService
             Type = type,
             Title = title,
             Body = body,
-            IsRead = false,
             CreatedAt = DateTime.UtcNow
         };
 

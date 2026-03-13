@@ -79,7 +79,7 @@ public class FinanceService : IFinanceService
             if (booking == null || booking.Status != "completed") return false;
 
             var kolId = booking.KolUserId;
-            var amountToRelease = booking.TotalAmount ?? 0;
+            var amountToRelease = booking.TotalAmount;
 
             var wallet = await GetOrCreateWalletAsync(kolId);
             wallet.Balance += amountToRelease;
@@ -128,7 +128,7 @@ public class FinanceService : IFinanceService
                 Amount = amount,
                 Currency = "VND",
                 Status = "pending",
-                BankName = bankAccountInfo, // Using this field for simplicity
+                BankInfoJson = bankAccountInfo, // Using this field for simplicity
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };

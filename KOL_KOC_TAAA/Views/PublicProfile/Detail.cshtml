@@ -1,194 +1,73 @@
 @model KOL_KOC_TAAA.ViewModels.PublicKolProfileViewModel
 @{
-    ViewData["Title"] = $"{Model.FullName} | Professional KOL Profile";
-    Layout = "_Layout";
-    var random = new Random();
+    ViewData["Title"] = Model.FullName + " - Hồ sơ KOL chuyên nghiệp";
+    Layout = "_LayoutLuxury";
 }
 
-<div class="lux-profile-page" style="background: var(--lux-bg-ivory); min-height: 100vh;">
-    <!-- Hero Section: Refined Editorial -->
-    <section class="lux-hero-editorial pt-5 pb-5">
-        <div class="container container-custom">
-            <div class="row align-items-center g-5">
-                <div class="col-lg-6">
-                    <div class="lux-hero-content animate-fade-in-up">
-                        <div class="d-flex align-items-center gap-3 mb-4">
-                            <span class="lux-cap" style="color: var(--lux-accent-gold);">Hồ sơ chuẩn xác</span>
-                            @if (Model.IsVerified)
-                            {
-                                <span class="badge rounded-pill bg-indigo-subtle text-primary border border-primary-subtle px-3 py-2">
-                                    <i class="bi bi-patch-check-fill me-1"></i> Đã xác minh
-                                </span>
-                            }
-                        </div>
-                        <h1 class="lux-h1 mb-4" style="font-size: 4.5rem; line-height: 0.9;">@Model.FullName</h1>
-                        <p class="lux-text-intro mb-5 opacity-75" style="max-width: 500px;">@Model.Bio</p>
-                        
-                        <div class="d-flex flex-wrap gap-4 align-items-center">
-                            @if (User.IsInRole("Customer"))
-                            {
-                                <a asp-action="Book" asp-route-id="@Model.UserId" class="lux-btn-primary px-5 py-3">
-                                    Đặt lịch ngay <i class="bi bi-arrow-right ms-2"></i>
-                                </a>
-                            }
-                            else if (!User.Identity.IsAuthenticated)
-                            {
-                                <a asp-controller="Auth" asp-action="Login" class="lux-btn-primary px-5 py-3">
-                                    Đăng nhập để đặt lịch <i class="bi bi-lock-fill ms-2"></i>
-                                </a>
-                            }
-                            <div class="lux-stat-minimal">
-                                <span class="d-block lux-cap" style="font-size: 0.65rem;">Starting from</span>
-                                <span class="h4 fw-bold">@Model.MinBudget?.ToString("N0") <small class="fw-normal opacity-50">VND</small></span>
-                            </div>
-                        </div>
-                    </div>
+<!-- 1. PROFILE HEADER -->
+@await Html.PartialAsync("Partials/_ProfileHeader", Model)
+
+<div class="container py-5">
+    <div class="row g-5">
+        <!-- LEFT COLUMN: MAIN CONTENT -->
+        <div class="col-lg-8">
+            <!-- About Section -->
+            <section class="lux-profile-section mb-5" data-reveal="fade-up">
+                <h5 class="fw-bold text-indigo mb-3">Về tôi</h5>
+                <div class="lux-bio-text lead fs-6" style="line-height: 1.8; color: var(--lux-text-body);">
+                    @Model.Bio
                 </div>
-                <div class="col-lg-6">
-                    <div class="lux-hero-image-frame position-relative animate-fade-in">
-                        <div class="editorial-frame">
-                             <img src="@(Model.AvatarUrl ?? "https://ui-avatars.com/api/?name=" + Uri.EscapeDataString(Model.FullName) + "&size=800&background=F3F4F6&color=1A237E")" 
-                                  class="img-fluid w-100 shadow-2xl" 
-                                  style="aspect-ratio: 4/5; object-fit: cover; border-radius: 4px;">
-                        </div>
-                        <!-- Floating Highlight -->
-                        <div class="position-absolute bottom-0 start-0 p-4 translate-middle-x d-none d-md-block" style="left: 10%;">
-                            <div class="lux-glass p-4 text-center" style="min-width: 180px;">
-                                <div class="h2 mb-0 fw-bold">@Model.RatingAvg <i class="bi bi-star-fill text-warning" style="font-size: 0.8rem;"></i></div>
-                                <div class="lux-cap opacity-50" style="font-size: 0.6rem;">Trusted Rating</div>
-                            </div>
-                        </div>
-                    </div>
+            </section>
+
+            <!-- Social Stats -->
+            <section class="lux-profile-section mb-5">
+                @await Html.PartialAsync("Partials/_ProfileSocialStats", Model.SocialAccounts)
+            </section>
+
+            <!-- Portfolio -->
+            <section class="lux-profile-section mb-5">
+                @await Html.PartialAsync("Partials/_ProfilePortfolio", Model.Portfolios)
+            </section>
+
+            <!-- Services / Rate Card -->
+            <section class="lux-profile-section mb-5">
+                @await Html.PartialAsync("Partials/_ProfileServices", Model.RateCards)
+            </section>
+        </div>
+
+        <!-- RIGHT COLUMN: SIDEBAR (ACTION BOX) -->
+        <div class="col-lg-4">
+            <div class="sticky-sidebar" style="top: 100px;">
+                @await Html.PartialAsync("Partials/_ProfileActionBox", Model)
+                
+                <!-- Extra Context Card -->
+                <div class="mt-4 p-4 border rounded-4 bg-stone text-muted small">
+                    <h6 class="fw-bold text-dark mb-2">Lưu ý nhỏ</h6>
+                    <ul class="ps-3 mb-0">
+                        <li>Giá trên là chi phí dự kiến, có thể thay đổi tùy brief.</li>
+                        <li>Phản hồi qua hệ thống chat nhanh nhất.</li>
+                        <li>Mọi giao dịch qua sàn đều được bảo vệ Escrow.</li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Bento Grid Info Section -->
-    <section class="lux-profile-stats py-5">
-        <div class="container container-custom">
-            <div class="lux-bento-grid">
-                <!-- Social Influence -->
-                <div class="bento-item p-5 bg-white shadow-sm" style="grid-column: span 8; grid-row: span 1;">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h3 class="lux-h3 mb-0">Tầm ảnh hưởng <span class="serif italic">Số liệu thật</span></h3>
-                        <div class="lux-icon-circle"><i class="bi bi-graph-up-arrow"></i></div>
-                    </div>
-                    <div class="row g-5">
-                        @foreach (var social in Model.SocialAccounts)
-                        {
-                            <div class="col-md-3">
-                                <div class="social-stat-card">
-                                    <i class="bi bi-@(social.Platform.ToLower()) fs-3 mb-2 d-block"></i>
-                                    <div class="h4 fw-bold mb-0">@((social.Followers ?? 0).ToString("N0"))</div>
-                                    <div class="lux-cap opacity-50 mt-1" style="font-size: 0.6rem;">Followers</div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- Location & Info -->
-                <div class="bento-item p-5 border border-dark border-opacity-10 d-flex flex-column justify-content-center" style="grid-column: span 4; grid-row: span 1;">
-                    <div class="mb-4">
-                        <span class="lux-cap opacity-50 d-block mb-1">Vị trí hiện tại</span>
-                        <div class="h5 fw-bold"><i class="bi bi-geo-alt me-2"></i> @Model.LocationCity, @Model.LocationCountry</div>
-                    </div>
-                    <div>
-                        <span class="lux-cap opacity-50 d-block mb-1">Phân loại</span>
-                        <div class="h5 fw-bold text-uppercase tracking-wider">@Model.InfluencerType</div>
-                    </div>
-                </div>
-
-                <!-- Rate Card Summary -->
-                <div class="bento-item p-5" style="grid-column: span 4; grid-row: span 1; background: var(--lux-primary-indigo); color: white;">
-                    <h4 class="lux-h4 text-white-50 mb-4" style="font-size: 0.8rem;">Dịch vụ nổi bật</h4>
-                    @if (Model.RateCards.Any(r => r.RateCardItems.Any()))
-                    {
-                        var items = Model.RateCards.SelectMany(r => r.RateCardItems).Take(3);
-                        foreach (var item in items)
-                        {
-                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-white border-opacity-10">
-                                <span class="small opacity-75">@item.ServiceName</span>
-                                <span class="fw-bold">@item.Price?.ToString("N0") <small class="fw-normal opacity-50 text-white-50">VND</small></span>
-                            </div>
-                        }
-                        <div class="mt-4">
-                            <a asp-action="Book" asp-route-id="@Model.UserId" class="text-white text-decoration-none small fw-bold hover-gold transition-all">
-                                Xem bảng giá chi tiết <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="small opacity-50 italic">Liên hệ để nhận báo giá chi tiết.</p>
-                    }
-                </div>
-
-                <!-- Portfolio Highlights -->
-                <div class="bento-item p-0" style="grid-column: span 8; grid-row: span 1; background: #000; position: relative; overflow: hidden;">
-                    <div class="portfolio-backdrop position-absolute top-0 start-0 w-100 h-100 opacity-50" 
-                         style="background: url('https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=crop&q=80') center/cover;"></div>
-                    <div class="position-relative h-100 p-5 d-flex flex-column justify-content-end text-white">
-                        <div class="lux-cap text-white-50 mb-2">Portfolio</div>
-                        <h3 class="lux-h3 text-white">Dự án & Sáng tạo</h3>
-                        <p class="small text-white-50 mb-0">Khám phá những chiến dịch đã thực hiện qua hình ảnh và video thực tế.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Simple Footer for Profile -->
-    <footer class="py-5 mt-5 border-top">
-        <div class="container container-custom text-center text-muted small">
-            <p>© 2024 KOLMARKT Editorial. All rights reserved.</p>
-        </div>
-    </footer>
+    </div>
 </div>
 
-<style>
-    .lux-hero-image-frame .editorial-frame {
-        padding: 40px;
-        background: white;
-        box-shadow: 0 40px 100px rgba(0,0,0,0.1);
-        transform: rotate(2deg);
-        transition: transform 0.6s var(--lux-ease);
-    }
-    .lux-hero-image-frame:hover .editorial-frame {
-        transform: rotate(0deg);
-    }
-    .lux-glass {
-        background: rgba(255,255,255,0.7);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(0,0,0,0.05);
-        border-radius: 12px;
-    }
-    .lux-bento-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        gap: 1.5rem;
-    }
-    .bento-item {
-        border-radius: 24px;
-        transition: transform 0.4s var(--lux-ease), box-shadow 0.4s var(--lux-ease);
-    }
-    .bento-item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.05) !important;
-    }
-    .social-stat-card {
-        padding: 1rem;
-        border-radius: 16px;
-        transition: background 0.3s ease;
-    }
-    .social-stat-card:hover {
-        background: var(--lux-bg-stone);
-    }
-    .hover-gold:hover { color: var(--lux-accent-gold) !important; }
-    
-    @@media (max-width: 992px) {
-        .lux-bento-grid { display: flex; flex-direction: column; }
-        .lux-h1 { font-size: 3rem !important; }
-    }
-</style>
+<!-- SCRIPTS FOR REVEAL ANIMATION (Used in Index too, consider shared script) -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const revealItems = document.querySelectorAll('[data-reveal]');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const delay = parseInt(el.getAttribute('data-delay')) || 0;
+                    setTimeout(() => { el.classList.add('revealed'); }, delay);
+                    revealObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.1 });
+        revealItems.forEach(el => revealObserver.observe(el));
+    });
+</script>

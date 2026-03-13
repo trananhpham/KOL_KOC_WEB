@@ -1,0 +1,27 @@
+@model List<KOL_KOC_TAAA.ViewModels.BrandLogoViewModel>
+
+<section class="lux-brands py-5" style="background: var(--lux-bg-stone); border-top: 1px solid var(--lux-border-thick);">
+    <div class="container overflow-hidden">
+        <div class="text-center mb-5" data-reveal="fade-up">
+            <h6 class="text-uppercase fw-bold text-muted small ls-2">Đối tác tiêu biểu</h6>
+            <div class="lux-h2 fs-3 mt-2">Đồng hành cùng sự phát triển của các <span class="text-indigo">thương hiệu hàng đầu</span></div>
+        </div>
+        
+        <div class="lux-brand-grid d-flex flex-wrap justify-content-center align-items-center gap-5 opacity-75 grayscale-hover">
+            @foreach (var brand in Model)
+            {
+                <div class="lux-brand-item" data-reveal="fade-in" data-delay="100">
+                    <img src="@brand.LogoUrl" alt="@brand.Name" title="@brand.Name" class="brand-logo" style="height: 32px; filter: grayscale(1); transition: all 0.4s ease;">
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+    .lux-brand-item:hover img {
+        filter: grayscale(0) !important;
+        transform: scale(1.1);
+    }
+    .ls-2 { letter-spacing: 2px; }
+</style>

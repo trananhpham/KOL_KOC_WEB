@@ -1,78 +1,69 @@
-@model IEnumerable<KOL_KOC_TAAA.Models.ChatConversation>
+@model List<KOL_KOC_TAAA.Models.ChatConversation>
 @{
-    ViewData["Title"] = "Tin nhắn";
-    Layout = "_LayoutDashboard";
+    Layout = "_LayoutLuxury";
+    ViewData["Title"] = "Tin nhắn - KOL Market";
 }
 
-<div class="mb-4">
-    <h2 class="h4 fw-bold mb-1">Hộp thư tin nhắn</h2>
-    <p class="text-muted small">Đàm phán và trao đổi trực tiếp với đối tác của bạn.</p>
-</div>
+<div class="container-fluid py-4" style="height: calc(100vh - 100px);">
+    <div class="row h-100 g-0 lux-surface overflow-hidden">
+        <!-- Sidebar: Conversation List -->
+        <div class="col-lg-4 col-xl-3 border-end h-100 d-flex flex-column">
+            <div class="p-4 border-bottom">
+                <h2 class="lux-h2 mb-0">Tin nhắn</h2>
+            </div>
+            <div class="flex-grow-1 overflow-auto">
+                @if (Model.Any())
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var conv in Model)
+                        {
+                            var otherMember = conv.ChatMembers.FirstOrDefault(m => m.UserId != (Guid)ViewBag.CurrentUserId);
+                            <a asp-action="Conversation" asp-route-id="@conv.Id" class="list-group-item list-group-item-action p-4 border-bottom-0 @(ViewBag.ActiveConvId == conv.Id ? "active-conv" : "")">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="position-relative">
+                                        <img src="https://ui-avatars.com/api/?name=@(otherMember?.User?.FullName ?? "User")&background=random" class="rounded-circle" width="50" height="50">
+                                        <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle"></span>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <h6 class="mb-0 text-truncate fw-bold">@(otherMember?.User?.FullName ?? "Người dùng")</h6>
+                                            <span class="smaller text-muted">@conv.UpdatedAt.ToString("HH:mm")</span>
+                                        </div>
+                                        <p class="mb-0 text-truncate small text-muted">@conv.Title</p>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="p-5 text-center text-muted">
+                        <i class="bi bi-chat-dots display-1 opacity-10 d-block mb-3"></i>
+                        <p>Chưa có hội thoại nào.</p>
+                    </div>
+                }
+            </div>
+        </div>
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="dash-card p-0 overflow-hidden">
-            @if (Model != null && Model.Any())
-            {
-                <div class="list-group list-group-flush">
-                    @foreach (var conv in Model)
-                    {
-                        var otherMember = conv.ChatMembers.FirstOrDefault(m => m.UserId != Guid.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)))?.User;
-                        var lastMessage = conv.ChatMessages.FirstOrDefault();
-                        
-                        <a asp-action="Conversation" asp-route-id="@conv.Id" class="list-group-item list-group-item-action p-4 border-0 border-bottom border-light">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="avatar-circle rounded-circle bg-light d-flex align-items-center justify-content-center fw-bold text-primary" style="width: 54px; height: 54px; font-size: 1.2rem; flex-shrink: 0;">
-                                    @if (!string.IsNullOrEmpty(otherMember?.AvatarUrl))
-                                    {
-                                        <img src="@otherMember.AvatarUrl" class="w-100 h-100 rounded-circle" style="object-fit: cover;">
-                                    }
-                                    else
-                                    {
-                                        @(otherMember?.FullName?[0..1] ?? "U")
-                                    }
-                                </div>
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="fw-bold mb-0">@otherMember?.FullName</h6>
-                                        <span class="small text-muted" style="font-size: 0.7rem;">@conv.UpdatedAt.ToString("dd/MM HH:mm")</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <p class="text-muted small mb-0 text-truncate" style="max-width: 80%;">
-                                            @if (lastMessage != null)
-                                            {
-                                                @(lastMessage.SenderUserId == Guid.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)) ? "Bạn: " : "")@lastMessage.Content
-                                            }
-                                            else
-                                            {
-                                                <span class="italic opacity-50">Bắt đầu cuộc hội thoại...</span>
-                                            }
-                                        </p>
-                                        @if (conv.Type == "booking_negotiation")
-                                        {
-                                            <span class="badge rounded-pill bg-indigo-subtle text-primary" style="font-size: 0.6rem;">Booking</span>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <i class="bi bi-chat-square-dots fs-1 text-muted opacity-25 mb-3 d-block"></i>
-                    <h5 class="fw-bold">Hộp thư đang trống</h5>
-                    <p class="text-muted small">Mọi cuộc thảo luận về chiến dịch sẽ hiển thị ở đây.</p>
-                </div>
-            }
+        <!-- Main Chat Area -->
+        <div class="col-lg-8 col-xl-9 h-100 bg-light d-flex align-items-center justify-content-center text-muted">
+            <div class="text-center">
+                <i class="bi bi-chat-heart display-1 opacity-10"></i>
+                <h4 class="mt-3">Chọn một hội thoại để bắt đầu</h4>
+                <p>Trao đổi công việc và thảo luận kịch bản ngay tại đây.</p>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .list-group-item-action:hover {
-        background-color: #f8fafc !important;
+    .active-conv {
+        background-color: var(--lux-bg-stone) !important;
+        border-left: 4px solid var(--lux-accent-gold) !important;
     }
+    .smaller { font-size: 0.75rem; }
 </style>
+操控
+操控
+操控

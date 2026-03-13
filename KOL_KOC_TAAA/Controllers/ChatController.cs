@@ -62,4 +62,22 @@ public class ChatController : Controller
             }
         });
     }
+
+    [HttpGet]
+    [Route("Chat/StartWithKol/{kolId}")]
+    public async Task<IActionResult> StartWithKol(Guid kolId)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty) return Challenge();
+
+        // Don't chat with yourself
+        if (userId == kolId)
+        {
+            TempData["ErrorMessage"] = "Bạn không thể nhắn tin cho chính mình.";
+            return RedirectToAction("Index");
+        }
+
+        var conversation = await _chatService.GetOrCreateDirectConversationAsync(userId, kolId);
+        return RedirectToAction(nameof(Conversation), new { id = conversation.Id });
+    }
 }

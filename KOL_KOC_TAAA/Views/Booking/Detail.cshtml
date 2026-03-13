@@ -1,0 +1,215 @@
+@model KOL_KOC_TAAA.ViewModels.BookingDetailViewModel
+@{
+    Layout = "_LayoutLuxury";
+    ViewData["Title"] = $"Đơn hàng #{Model.Booking.Id.ToString()[..8].ToUpper()} - KOL Market";
+}
+
+<div class="container py-5">
+    <div class="mb-5" data-reveal="fade-up">
+        <a asp-action="Index" class="lux-link small mb-3 d-inline-block"><i class="bi bi-arrow-left me-1"></i> Quay lại danh sách</a>
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <h1 class="lux-h1 mb-1">Chi tiết <span class="text-gradient-gold">Hợp tác</span></h1>
+                <p class="text-muted">Mã đơn hàng: #@Model.Booking.Id.ToString().ToUpper()</p>
+            </div>
+            <div class="text-end">
+                <span class="lux-cap mb-1 d-block">Trạng thái hiện tại</span>
+                <span class="badge bg-gold px-3 py-2 fs-6">@Model.Booking.Status.ToUpper()</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="lux-surface p-4 mb-5" data-reveal="fade-up">
+        <div class="row text-center position-relative">
+            <div class="col">
+                <div class="progress-step @(true ? "active" : "")">
+                    <div class="step-icon"><i class="bi bi-file-earmark-text"></i></div>
+                    <div class="small mt-2 fw-bold">Khởi tạo</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="progress-step @(Model.IsContractSigned ? "active" : "")">
+                    <div class="step-icon"><i class="bi bi-pen"></i></div>
+                    <div class="small mt-2 fw-bold">Hợp đồng</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="progress-step @(Model.IsPaymentReceived ? "active" : "")">
+                    <div class="step-icon"><i class="bi bi-credit-card"></i></div>
+                    <div class="small mt-2 fw-bold">Thanh toán</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="progress-step @(Model.HasDeliverablesSubmitted ? "active" : "")">
+                    <div class="step-icon"><i class="bi bi-cloud-upload"></i></div>
+                    <div class="small mt-2 fw-bold">Nộp bài</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="progress-step @(Model.IsCompleted ? "active" : "")">
+                    <div class="step-icon"><i class="bi bi-check-circle"></i></div>
+                    <div class="small mt-2 fw-bold">Hoàn tất</div>
+                </div>
+            </div>
+            <div class="step-connector"></div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-lg-8" data-reveal="fade-right">
+            <!-- Campaign Details -->
+            <div class="lux-surface p-4 mb-4">
+                <h5 class="lux-h2 mb-4 pb-2 border-bottom">Thông tin Chiến dịch</h5>
+                <h6 class="fw-bold fs-5 mb-3">@Model.Booking.BookingRequest.Title</h6>
+                <div class="bg-light p-3 rounded mb-4">
+                    <label class="lux-cap small mb-1">Mô tả Brief</label>
+                    <p class="mb-0 text-muted">@Model.Booking.BookingRequest.Brief</p>
+                </div>
+                
+                <table class="table table-borderless align-middle mb-0">
+                    <thead class="text-muted small text-uppercase ls-1">
+                        <tr>
+                            <th>Hạng mục dịch vụ</th>
+                            <th class="text-center">Số lượng</th>
+                            <th class="text-end">Đơn giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Booking.BookingItems)
+                        {
+                            <tr>
+                                <td class="py-3">
+                                    <div class="fw-bold">@item.ServiceType</div>
+                                </td>
+                                <td class="text-center">@item.Quantity</td>
+                                <td class="text-end fw-bold text-gold">@item.UnitPrice.ToString("N0") @Model.Booking.Currency</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="border-top">
+                        <tr>
+                            <td colspan="2" class="pt-3 fw-bold">TỔNG CỘNG</td>
+                            <td class="pt-3 text-end fw-bold fs-5 text-gradient-gold">@Model.Booking.TotalAmount.ToString("N0") @Model.Booking.Currency</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Actions based on status -->
+            <div class="lux-surface p-4 border-gold" style="border-width: 2px !important;">
+                <h5 class="lux-h2 mb-4">Hành động cần thiết</h5>
+                
+                @if (Model.Role == "Customer" && Model.Booking.Status == "pending_payment")
+                {
+                    <div class="d-flex align-items-center justify-content-between bg-gold-subtle p-3 rounded border">
+                        <div>
+                            <p class="mb-0 fw-bold">Vui lòng hoàn tất thanh toán Escrow</p>
+                            <span class="small opacity-75">Tiền sẽ được hệ thống giữ cho đến khi bạn nghiệm thu sản phẩm.</span>
+                        </div>
+                        <a asp-action="Pay" asp-route-id="@Model.Booking.Id" class="lux-btn-primary">THANH TOÁN NGAY</a>
+                    </div>
+                }
+                else if (Model.Role == "KOL" && !Model.IsContractSigned)
+                {
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded border">
+                        <div>
+                            <p class="mb-0 fw-bold">Chưa ký hợp đồng điện tử</p>
+                            <span class="small text-muted">Bạn cần ký hợp đồng trước khi bắt đầu thực hiện công việc.</span>
+                        </div>
+                        <button class="lux-btn-primary">KÝ HỢP ĐỒNG</button>
+                    </div>
+                }
+                else if (Model.Role == "KOL" && Model.IsPaymentReceived && !Model.HasDeliverablesSubmitted)
+                {
+                    <div class="d-flex align-items-center justify-content-between p-3 rounded border">
+                        <div>
+                            <p class="mb-0 fw-bold">Nộp bài viết / Sản phẩm sáng tạo</p>
+                            <span class="small text-muted">Link bài viết hoặc file đính kèm để Brand duyệt bài.</span>
+                        </div>
+                        <button class="lux-btn-primary">GỬI SẢN PHẨM</button>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Hệ thống đang chờ phản hồi từ đối phương hoặc đang trong giai đoạn thực hiện.</p>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-4" data-reveal="fade-left">
+            <!-- Sidebar: Partner Info -->
+            <div class="lux-surface p-4 mb-4">
+                <h6 class="lux-cap mb-3">Đối tác hợp tác</h6>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <img src="https://ui-avatars.com/api/?name=@(Model.Role == "KOL" ? Model.Booking.CustomerUser.FullName : Model.Booking.KolUser.User.FullName)&background=random" class="rounded-circle" width="50" height="50">
+                    <div>
+                        <div class="fw-bold">@(Model.Role == "KOL" ? Model.Booking.CustomerUser.FullName : Model.Booking.KolUser.User.FullName)</div>
+                        <div class="small text-muted">@(Model.Role == "KOL" ? "Brand/Customer" : "KOL/Creator")</div>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <a asp-controller="Chat" asp-action="Conversation" asp-route-id="@Model.Booking.BookingRequest.ChatConversations.FirstOrDefault()?.Id" class="lux-btn-outline d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-chat-dots"></i> Nhắn tin trao đổi
+                    </a>
+                    <button class="lux-btn-outline d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-camera-video"></i> Đặt lịch họp (Zoom/Meet)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Deliverables Section -->
+            <div class="lux-surface p-4">
+                <h6 class="lux-cap mb-3">Sản phẩm bàn giao</h6>
+                @if (Model.HasDeliverablesSubmitted)
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var del in Model.Booking.Deliverables)
+                        {
+                            <div class="list-group-item bg-transparent px-0 border-0 mb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold">Bài viết #1</span>
+                                    <span class="badge bg-success small">DONE</span>
+                                </div>
+                                <a href="@del.DeliverableUrl" target="_blank" class="small text-gold text-truncate d-block">@del.DeliverableUrl</a>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted small mb-0">Chưa có sản phẩm nào được nộp.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .progress-step { position: relative; z-index: 2; }
+    .step-icon {
+        width: 50px; height: 50px;
+        background: white;
+        border: 2px solid #eee;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    }
+    .progress-step.active .step-icon {
+        background: var(--lux-primary-indigo);
+        border-color: var(--lux-primary-indigo);
+        color: white;
+        box-shadow: 0 0 15px rgba(var(--lux-primary-indigo-rgb), 0.3);
+    }
+    .step-connector {
+        position: absolute;
+        top: 25px; left: 10%; right: 10%;
+        height: 2px;
+        background: #eee;
+        z-index: 1;
+    }
+    .bg-gold-subtle { background: rgba(212, 175, 55, 0.05); }
+    .border-gold { border-color: var(--lux-accent-gold) !important; }
+</style>

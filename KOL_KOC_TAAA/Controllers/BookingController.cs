@@ -5,6 +5,7 @@ using KOL_KOC_TAAA.Data;
 using KOL_KOC_TAAA.Models;
 using KOL_KOC_TAAA.ViewModels;
 using System.Security.Claims;
+using KOL_KOC_TAAA.Services;
 
 namespace KOL_KOC_TAAA.Controllers;
 
@@ -26,23 +27,43 @@ public class BookingController : Controller
         return Guid.TryParse(idString, out var id) ? id : Guid.Empty;
     }
 
-    [HttpGet]
-    [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> MyRequests()
+    public async Task<IActionResult> Index()
     {
         var userId = GetCurrentUserId();
-        var requests = await _bookingService.GetCustomerBookingRequestsAsync(userId);
-        return View(requests);
+        var model = new BookingListViewModel();
+        
+        if (User.IsInRole("Customer"))
+        {
+            model.SentRequests = await _bookingService.GetCustomerBookingRequestsAsync(userId);
+        }
+        
+        if (User.IsInRole("KOL"))
+        {
+            model.ReceivedRequests = await _bookingService.GetKolBookingRequestsAsync(userId);
+        }
+
+        return View(model);
     }
 
-    [HttpGet]
-    [Authorize(Roles = "KOL")]
-    public async Task<IActionResult> ManageBookings()
+    public async Task<IActionResult> Detail(Guid id)
     {
+        var booking = await _bookingService.GetBookingAsync(id);
+        if (booking == null) return NotFound();
+
         var userId = GetCurrentUserId();
-        var kolId = userId; // Assuming userId is kolProfile.UserId
-        var requests = await _bookingService.GetKolBookingRequestsAsync(kolId);
-        return View(requests);
+        if (booking.CustomerUserId != userId && booking.KolUserId != userId) return Forbid();
+
+        var model = new BookingDetailViewModel
+        {
+            Booking = booking,
+            Role = booking.KolUserId == userId ? "KOL" : "Customer",
+            IsContractSigned = booking.Contracts.Any(c => c.Status == "signed"),
+            IsPaymentReceived = booking.Status != "pending_payment" && booking.Status != "awaiting_payment",
+            HasDeliverablesSubmitted = booking.Deliverables.Any(),
+            IsCompleted = booking.Status == "completed"
+        };
+
+        return View(model);
     }
 
     [HttpPost]
@@ -57,8 +78,9 @@ public class BookingController : Controller
 
         if (status == "accepted")
         {
-            await _bookingService.FinalizeBookingFromRequestAsync(requestId);
+            var booking = await _bookingService.FinalizeBookingFromRequestAsync(requestId);
             TempData["SuccessMessage"] = "Bạn đã chấp nhận yêu cầu và tạo đơn hàng chính thức.";
+            return RedirectToAction(nameof(Detail), new { id = booking.Id });
         }
         else if (status == "rejected")
         {
@@ -66,14 +88,14 @@ public class BookingController : Controller
             TempData["SuccessMessage"] = "Đã từ chối yêu cầu hợp tác.";
         }
 
-        return RedirectToAction(nameof(ManageBookings));
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpGet]
     [Authorize(Roles = "Customer")]
-    public async Task<IActionResult> Pay(Guid bookingId)
+    public async Task<IActionResult> Pay(Guid id)
     {
-        var booking = await _bookingService.GetBookingAsync(bookingId);
+        var booking = await _bookingService.GetBookingAsync(id);
         if (booking == null || booking.CustomerUserId != GetCurrentUserId()) return NotFound();
 
         return View(booking);
@@ -94,11 +116,10 @@ public class BookingController : Controller
         if (success)
         {
             TempData["SuccessMessage"] = "Thanh toán thành công. Tiền đã được giữ tại Escrow hệ thống.";
-            return RedirectToAction(nameof(MyRequests));
+            return RedirectToAction(nameof(Detail), new { id = bookingId });
         }
 
         ModelState.AddModelError("", "Thanh toán thất bại. Vui lòng thử lại.");
         return View("Pay", booking);
     }
-}
 }

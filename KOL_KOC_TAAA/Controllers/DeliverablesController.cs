@@ -57,8 +57,8 @@ public class DeliverablesController : Controller
         {
             Id = Guid.NewGuid(),
             BookingId = bookingId,
-            ContentUrl = contentUrl,
-            Notes = notes,
+            Title = contentUrl, // Using Title to store URL
+            Description = notes, // Using Description for notes
             Status = "submitted",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow

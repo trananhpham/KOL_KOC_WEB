@@ -235,3 +235,114 @@ body.luxury-mode {
     padding-left: 0.75rem;
     margin: 0.75rem 0;
 }
+/* Reveal Animation System */
+[data-reveal] {
+    opacity: 0;
+    transition: all 0.8s var(--lux-ease);
+}
+
+[data-reveal="fade-up"] { transform: translateY(40px); }
+[data-reveal="fade-right"] { transform: translateX(-40px); }
+[data-reveal="fade-left"] { transform: translateX(40px); }
+[data-reveal="scale-up"] { transform: scale(0.9); }
+
+[data-reveal].revealed {
+    opacity: 1;
+    transform: translate(0) scale(1);
+}
+
+/* Luxury Search Box */
+.lux-search-box-wrap {
+    background: #fff;
+    padding: 6px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.lux-search-box .form-control:focus {
+    background: transparent;
+}
+
+/* Chips */
+.lux-chip {
+    display: inline-block;
+    padding: 8px 18px;
+    background: var(--lux-bg-stone);
+    border-radius: 100px;
+    color: var(--lux-text-body);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: var(--lux-transition);
+    border: 1px solid transparent;
+}
+
+.lux-chip:hover, .lux-chip.active {
+    background: var(--lux-primary-indigo);
+    color: #fff;
+    border-color: var(--lux-primary-indigo);
+}
+
+/* Stats Section */
+.lux-stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    color: var(--lux-text-rich);
+    font-variant-numeric: tabular-nums;
+}
+
+.lux-stat-label {
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: var(--lux-accent-gold);
+}
+
+/* Gradient Text */
+.text-gradient-gold {
+    background: linear-gradient(135deg, #C5A059 0%, #E2C28A 50%, #C5A059 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+.text-indigo { color: var(--lux-primary-indigo); }
+.text-gold { color: var(--lux-accent-gold); }
+
+/* Custom Scrollbar for Marquee */
+.grayscale-hover img {
+    filter: grayscale(1);
+    opacity: 0.6;
+}
+.grayscale-hover img:hover {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
+.bg-indigo { background-color: var(--lux-primary-indigo); }
+.ls-2 { letter-spacing: 2px; }
+
+/* Bento Rhythm Heights */
+.h-normal { height: 260px; }
+.h-featured { height: 380px; }
+
+/* Sticky Sidebar Fix for Mobile */
+@media (max-width: 991px) {
+    .sticky-sidebar {
+        position: static !important;
+        margin-top: 2rem;
+    }
+}
+
+.lux-profile-section {
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--lux-border);
+}
+.lux-profile-section:last-child {
+    border-bottom: none;
+}

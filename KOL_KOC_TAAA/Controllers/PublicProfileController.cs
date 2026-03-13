@@ -25,11 +25,14 @@ public class PublicProfileController : Controller
         var p = await _profileService.GetProfileByUserIdAsync(id);
         if (p == null || p.User.Status != "active") return NotFound();
 
+        var mockIdols = MockIdolService.GetMockIdols();
+        var mockMatch = mockIdols.FirstOrDefault(m => m.UserId == id);
+
         var model = new PublicKolProfileViewModel
         {
             UserId = p.UserId,
             FullName = p.User.FullName ?? p.User.Email,
-            AvatarUrl = p.User.AvatarUrl,
+            AvatarUrl = p.User.AvatarUrl ?? mockMatch?.AvatarUrl,
             InfluencerType = p.InfluencerType,
             Bio = p.Bio,
             LocationCity = p.LocationCity,
@@ -38,6 +41,14 @@ public class PublicProfileController : Controller
             RatingCount = p.RatingCount,
             IsVerified = p.IsVerified,
             MinBudget = p.MinBudget,
+            
+            // Stats & Trust Signals
+            TotalFollowers = p.KolSocialAccounts.Sum(s => s.Followers ?? 0),
+            Platforms = p.KolSocialAccounts.Select(s => s.Platform).Distinct().ToList(),
+            AvgResponseTime = mockMatch?.AvgResponseTime ?? "Trong vài giờ",
+            CompletedCampaigns = mockMatch?.CompletedCampaigns ?? 0,
+            CompletionRate = mockMatch?.CompletionRate ?? 100,
+
             SocialAccounts = p.KolSocialAccounts.ToList(),
             Portfolios = p.KolPortfolios.ToList(),
             RateCards = p.RateCards.ToList()

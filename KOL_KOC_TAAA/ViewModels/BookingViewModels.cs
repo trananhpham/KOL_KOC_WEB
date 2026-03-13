@@ -5,6 +5,8 @@ namespace KOL_KOC_TAAA.ViewModels;
 public class CreateBookingRequestViewModel
 {
     public Guid KolUserId { get; set; }
+    public string? KolName { get; set; } // Helper for view
+    public List<KOL_KOC_TAAA.Models.RateCard> AvailableServices { get; set; } = new(); // Helper for view
 
     [Required(ErrorMessage = "Vui lòng nhập tiêu đề chiến dịch")]
     [Display(Name = "Tiêu đề chiến dịch")]

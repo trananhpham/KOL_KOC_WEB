@@ -50,7 +50,6 @@ public class ContractService : IContractService
         await _context.SaveChangesAsync();
 
         // Notify the other party
-        var booking = await _context.Bookings.FindAsync(bookingId);
         if (booking != null)
         {
             var receiverId = booking.KolUserId == creatorId ? booking.CustomerUserId : booking.KolUserId;
@@ -161,7 +160,7 @@ public class ContractService : IContractService
             sb.AppendLine($"- {item.ServiceType} trên {item.Platform}: {item.Quantity} gói - Đơn giá: {item.UnitPrice.ToString("N0")} VND");
         }
         sb.AppendLine();
-        sb.AppendLine($"**TỔNG GIÁ TRỊ HỢP ĐỒNG:** {booking.TotalAmount?.ToString("N0")} {booking.Currency}");
+        sb.AppendLine($"**TỔNG GIÁ TRỊ HỢP ĐỒNG:** {booking.TotalAmount.ToString("N0")} {booking.Currency}");
         sb.AppendLine();
         sb.AppendLine("## 3. ĐIỀU KHOẢN THANH TOÁN");
         sb.AppendLine("- Bên A thanh toán thông qua nền tảng KOL Marketplace.");

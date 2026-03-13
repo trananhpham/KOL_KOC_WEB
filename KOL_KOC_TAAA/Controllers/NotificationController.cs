@@ -1,7 +1,7 @@
+using System.Security.Claims;
 using KOL_KOC_TAAA.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace KOL_KOC_TAAA.Controllers;
 
@@ -21,6 +21,13 @@ public class NotificationController : Controller
         return Guid.TryParse(idString, out var id) ? id : Guid.Empty;
     }
 
+    public async Task<IActionResult> Index()
+    {
+        var userId = GetCurrentUserId();
+        var notifications = await _notificationService.GetUserNotificationsAsync(userId);
+        return View(notifications);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetLatest()
     {
@@ -35,7 +42,7 @@ public class NotificationController : Controller
     public async Task<IActionResult> MarkAsRead(Guid id)
     {
         await _notificationService.MarkAsReadAsync(id);
-        return Ok();
+        return Json(new { success = true });
     }
 
     [HttpPost]
@@ -43,6 +50,9 @@ public class NotificationController : Controller
     {
         var userId = GetCurrentUserId();
         await _notificationService.MarkAllAsReadAsync(userId);
-        return Ok();
+        return RedirectToAction(nameof(Index));
     }
 }
+操控
+操控
+操控
